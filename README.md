@@ -25,11 +25,15 @@ Typing `X Y -` will remove the edge between `X` and `Y`. It will keep `X` and `Y
 
 #### ls
 
-TODO: Write documentation on usage of `ls`.
+Usage: `ls (node)`
+
+Calculates and prints routing table using link-state routing algorithm.
 
 #### dv
 
-TODO: Write documentation on usage of `dv`.
+Usage: `dv (node)`
+
+Calculates and prints routing table using distance-vector routing algorithm.
 
 ### Other Commands
 

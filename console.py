@@ -25,10 +25,10 @@ class Command:
             "graph_manager" in func.__code__.co_varnames[: func.__code__.co_argcount]
         )
 
-    def __call__(self, graph_manager=None, *args: Any, **kwds: Any) -> Any:
+    def __call__(self, graph_manager=None, *args: Any, **kwargs: Any) -> Any:
         if self.needs_graph_manager:
-            return self.func(graph_manager, *args, **kwds)
-        return self.func(*args, **kwds)
+            return self.func(graph_manager, *args, **kwargs)
+        return self.func(*args, **kwargs)
 
 
 commands: dict[str, Command] = {}
@@ -145,7 +145,7 @@ def help_cmd(*args, **kwargs) -> bool:
         print(f"Unknown command: {name}.")
         return False
 
-    print(f"Help for {name}:\n")
+    print(f"Help for '{name}':\n")
     print(f"Usage: {command.usage}")
     print(f"Description: {command.description}")
     return False
@@ -157,15 +157,23 @@ def plot_cmd(graph_manager: GraphManager) -> bool:
     return False
 
 
-@add_command("ls", usage="ls [node]", description="Calculates and prints routing table using link-state routing algorithm.")
+@add_command(
+    "ls",
+    usage="ls (node)",
+    description="Calculates and prints routing table using link-state routing algorithm.",
+)
 def ls_cmd(graph_manager: GraphManager, node: str) -> bool:
     link_state_routing_alg = LinkStateRouting(graph_manager)
     link_state_routing_alg.run(node)
     return False
 
 
-@add_command("dv", usage="dv [node]", description="Calculates and prints routing table using distance-vector routing algorithm.")
-def ls_cmd(graph_manager: GraphManager, node: str) -> bool:
+@add_command(
+    "dv",
+    usage="dv (node)",
+    description="Calculates and prints routing table using distance-vector routing algorithm.",
+)
+def dv_cmd(graph_manager: GraphManager, node: str) -> bool:
     distance_vector_routing_alg = DistanceVectorRouting(graph_manager)
     distance_vector_routing_alg.run(node)
     return False
