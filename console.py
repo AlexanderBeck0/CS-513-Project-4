@@ -1,9 +1,14 @@
 import re
+from graph_manager import GraphManager
 
 
-def start_console(graph_manager=None) -> None:
+def start_console(graph_manager: GraphManager | None = None) -> None:
     print("Team Lord of the Pings | Network Layer Routing")
     shutdown_reason = "Unknown reason"
+
+    if graph_manager is None:
+        # Ensure there is always a graph manager
+        graph_manager = GraphManager()
 
     while True:
         try:
@@ -21,7 +26,7 @@ def start_console(graph_manager=None) -> None:
     on_shutdown(shutdown_reason)
 
 
-def parse_command(command: str, graph_manager) -> bool:
+def parse_command(command: str, graph_manager: GraphManager) -> bool:
     """Parses the passed command and runs the relavent code.
     See README for command usage.
 
@@ -33,25 +38,28 @@ def parse_command(command: str, graph_manager) -> bool:
     """
     first_node, second_node, cost = parse_edge(command)
     if first_node is not None:
-        if graph_manager:
-            graph_manager.add_edge(first_node, second_node, cost)
-        else:
-            print("No graph manager attached.")
+        # assertions for type checking. They will ALWAYS pass, so keeping them does no harm.
+        assert first_node is not None
+        assert second_node is not None
+        assert cost is not None
+        if isinstance(cost, str) and cost == "-":
+            graph_manager.remove_edge(first_node, second_node)
+            return False
+        
+        assert isinstance(cost, int)
+        graph_manager.add_edge(first_node, second_node, cost)
         return False
 
     if command.lower().startswith("exit"):
         return True
+    elif command.lower().startswith("help"):
+        help()
+        return False
     elif command.lower().startswith("ls"):
-        if graph_manager:
-            graph_manager.list_edges()
-        else:
-            print("No graph manager attached.")
+        graph_manager.list_edges()
         return False
     elif command.lower().startswith("plot"):
-        if graph_manager:
-            graph_manager.plot()
-        else:
-            print("No graph manager attached.")
+        graph_manager.plot()
         return False
     elif command.lower().startswith("dv"):
         print("dv is not yet implemented.")
@@ -62,7 +70,6 @@ def parse_command(command: str, graph_manager) -> bool:
     else:
         print("Unknown command. Please try again.")
         return False
-
 
 
 def parse_edge(command: str) -> tuple[str, str, int | str] | tuple[None, None, None]:
@@ -94,6 +101,12 @@ def parse_edge(command: str) -> tuple[str, str, int | str] | tuple[None, None, N
     # No hanging command and regex succeeded. Return the tuple.
     edge: tuple = is_edge_command.groups()
     return (edge[0], edge[1], int(edge[2]) if edge[2] != "-" else edge[2])
+
+
+def help() -> None:
+    # TODO: Implement help message
+    print("Help message not yet implemented.")
+    ...
 
 
 def on_shutdown(reason: str = "Unknown reason") -> None:

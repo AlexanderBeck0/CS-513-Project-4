@@ -8,7 +8,7 @@
 
 ## Basic Usage
 
-Start the program with `python console.py`.
+Start the program with `python main.py`.
 
 ### Adding a Graph Node
 
@@ -34,7 +34,9 @@ TODO: Write documentation on usage of `dv`.
 ### Other Commands
 
 1. [exit](#exit)
+1. [help](#help)
 1. [file](#file)
+1. [plot](#plot)
 
 #### exit
 
@@ -42,8 +44,20 @@ Usage: `exit`
 
 Quits the terminal and ends the program.
 
+#### help
+
+Usage: `help`
+
+Shows a help message with all of the console commands.
+
 #### file
 
 Usage: `file (file name)`
 
 Reads the file found at file name. Will print an error if the file is not found.
+
+#### plot
+
+Usage: `plot`
+
+Plots the graph.

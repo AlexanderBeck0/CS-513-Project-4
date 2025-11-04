@@ -1,24 +1,23 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 
+
 class GraphManager:
     def __init__(self):
         self.graph = nx.Graph()
 
-    def add_edge(self, node1: str, node2: str, cost: int | str):
+    def add_edge(self, node1: str, node2: str, cost: int):
         """Add or update an edge in the graph."""
-        if cost == "-":
-            # Remove edge
-            if self.graph.has_edge(node1, node2):
-                self.graph.remove_edge(node1, node2)
-                print(f"Removed edge {node1}-{node2}")
-            else:
-                print(f"Edge {node1}-{node2} not found.")
-            return
-
-        cost = int(cost)
         self.graph.add_edge(node1, node2, weight=cost)
         print(f"Added/Updated edge {node1}-{node2} with cost {cost}")
+
+    def remove_edge(self, node1: str, node2: str):
+        # Possible improvement would be to make this return the removed edge
+        if self.graph.has_edge(node1, node2):
+            self.graph.remove_edge(node1, node2)
+            print(f"Removed edge {node1}-{node2}")
+        else:
+            print(f"Edge {node1}-{node2} not found.")
 
     def list_edges(self):
         """Print edges with costs."""
