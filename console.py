@@ -1,6 +1,7 @@
 import re
 from typing import Any
 from graph_manager import GraphManager
+from routing import RoutingAlgorithm, LinkStateRouting, DistanceVectorRouting
 from collections.abc import Callable
 from functools import update_wrapper
 
@@ -150,21 +151,23 @@ def help_cmd(*args, **kwargs) -> bool:
     return False
 
 
-@add_command("ls")
-def ls_cmd(graph_manager: GraphManager) -> bool:
-    graph_manager.list_edges()
-    return False
-
-
 @add_command("plot", usage="plot", description="Plots the graph.")
 def plot_cmd(graph_manager: GraphManager) -> bool:
     graph_manager.plot()
     return False
 
 
-@add_command("dv")
-def dv_cmd() -> bool:
-    print("dv is not yet implemented.")
+@add_command("ls", usage="ls [node]", description="Calculates and prints routing table using link-state routing algorithm.")
+def ls_cmd(graph_manager: GraphManager, node: str) -> bool:
+    link_state_routing_alg = LinkStateRouting(graph_manager)
+    link_state_routing_alg.run(node)
+    return False
+
+
+@add_command("dv", usage="dv [node]", description="Calculates and prints routing table using distance-vector routing algorithm.")
+def ls_cmd(graph_manager: GraphManager, node: str) -> bool:
+    distance_vector_routing_alg = DistanceVectorRouting(graph_manager)
+    distance_vector_routing_alg.run(node)
     return False
 
 

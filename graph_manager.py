@@ -30,6 +30,7 @@ class GraphManager:
     def plot(self):
         """Visualize the graph."""
         pos = nx.spring_layout(self.graph)
+        
         weights = nx.get_edge_attributes(self.graph, "weight")
         nx.draw(self.graph, pos, with_labels=True, node_color="skyblue", node_size=1000)
         nx.draw_networkx_edge_labels(self.graph, pos, edge_labels=weights, rotate=False)
