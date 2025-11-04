@@ -1,5 +1,55 @@
 import re
+from typing import Any
 from graph_manager import GraphManager
+from collections.abc import Callable
+from functools import update_wrapper
+
+
+class Command:
+    def __init__(
+        self,
+        name: str,
+        func: Callable[[Any], bool],
+        usage: str = "",
+        description: str = "",
+    ):
+        self.name = name
+        self.usage = usage or f"No usage provided for {name}"
+        self.description = description or f"No description provided for {name}"
+        self.func = func
+        update_wrapper(self, func)
+
+        # https://stackoverflow.com/questions/582056/getting-list-of-parameter-names-inside-python-function#comment29479288_4051447
+        self.needs_graph_manager = (
+            "graph_manager" in func.__code__.co_varnames[: func.__code__.co_argcount]
+        )
+
+    def __call__(self, graph_manager=None, *args: Any, **kwds: Any) -> Any:
+        if self.needs_graph_manager:
+            return self.func(graph_manager, *args, **kwds)
+        return self.func(*args, **kwds)
+
+
+commands: dict[str, Command] = {}
+
+
+def register_command(command: Command) -> None:
+    """Registers a command.
+
+    Args:
+        command (Command): The command to register.
+    """
+    commands[command.name] = command
+
+
+def add_command(name: str, usage: str = "", description: str = ""):
+    def decorator(func):
+        register_command(
+            Command(name=name, func=func, usage=usage, description=description)
+        )
+        return func
+
+    return decorator
 
 
 def start_console(graph_manager: GraphManager | None = None) -> None:
@@ -45,31 +95,87 @@ def parse_command(command: str, graph_manager: GraphManager) -> bool:
         if isinstance(cost, str) and cost == "-":
             graph_manager.remove_edge(first_node, second_node)
             return False
-        
+
         assert isinstance(cost, int)
         graph_manager.add_edge(first_node, second_node, cost)
         return False
 
-    if command.lower().startswith("exit"):
-        return True
-    elif command.lower().startswith("help"):
-        help()
+    split_command = command.strip().split()
+    if not split_command:
+        # Empty command
         return False
-    elif command.lower().startswith("ls"):
-        graph_manager.list_edges()
-        return False
-    elif command.lower().startswith("plot"):
-        graph_manager.plot()
-        return False
-    elif command.lower().startswith("dv"):
-        print("dv is not yet implemented.")
-        return False
-    elif command.lower().startswith("file"):
-        print("file is not yet implemented.")
-        return False
+
+    name = split_command[0].lower()
+    args = split_command[1:]
+
+    cmd = commands.get(name)
+
+    if cmd:
+        command_result = cmd(graph_manager, *args)
+        return bool(command_result)  # Whether to exit the console or not
     else:
-        print("Unknown command. Please try again.")
+        # Unknown command
+        print(f"Unknown command '{name}'. Please type 'help' to see commands.")
         return False
+
+
+@add_command(
+    "exit", usage="exit", description="Quits the terminal and ends the program."
+)
+def exit_cmd() -> bool:
+    return True
+
+
+@add_command(
+    "help",
+    usage="help [command]",
+    description="Shows a help message with all of the console commands.",
+)
+def help_cmd(*args, **kwargs) -> bool:
+    if len(args) == 0:
+        print("Availible commands:")
+        for item in commands.items():
+            print(f"{item[0]} -- {item[1].description}")
+        return False
+
+    name = str(args[0]).strip().lower()
+    command = commands.get(name)
+    if command is None:
+        print(f"Unknown command: {name}.")
+        return False
+
+    print(f"Help for {name}:\n")
+    print(f"Usage: {command.usage}")
+    print(f"Description: {command.description}")
+    return False
+
+
+@add_command("ls")
+def ls_cmd(graph_manager: GraphManager) -> bool:
+    graph_manager.list_edges()
+    return False
+
+
+@add_command("plot", usage="plot", description="Plots the graph.")
+def plot_cmd(graph_manager: GraphManager) -> bool:
+    graph_manager.plot()
+    return False
+
+
+@add_command("dv")
+def dv_cmd() -> bool:
+    print("dv is not yet implemented.")
+    return False
+
+
+@add_command(
+    "file",
+    usage="file (file name)",
+    description="Reads the file found at file name. Will print an error if the file is not found.",
+)
+def file_cmd() -> bool:
+    print("file is not yet implemented.")
+    return False
 
 
 def parse_edge(command: str) -> tuple[str, str, int | str] | tuple[None, None, None]:
@@ -103,12 +209,13 @@ def parse_edge(command: str) -> tuple[str, str, int | str] | tuple[None, None, N
     return (edge[0], edge[1], int(edge[2]) if edge[2] != "-" else edge[2])
 
 
-def help() -> None:
-    # TODO: Implement help message
-    print("Help message not yet implemented.")
-    ...
-
-
 def on_shutdown(reason: str = "Unknown reason") -> None:
     """(Currently) a stub for if we want a shutdown behavior (like saving the graph state)"""
     print(f"Closing console. Reasoning: {reason}")
+
+
+if __name__ == "__main__":
+    # Just create a wrapper of main so that I can click run in VS code without having to switch to another file
+    import main
+
+    main.main()

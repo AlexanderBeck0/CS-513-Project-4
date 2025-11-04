@@ -46,7 +46,7 @@ Quits the terminal and ends the program.
 
 #### help
 
-Usage: `help`
+Usage: `help [command]`
 
 Shows a help message with all of the console commands.
 
