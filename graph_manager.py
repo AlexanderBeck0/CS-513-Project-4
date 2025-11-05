@@ -40,10 +40,10 @@ class GraphManager:
     def list_edges(self):
         """Print edges with costs."""
         if not self.graph.edges:
-            self.vprint("Graph is empty.")
+            print("Graph is empty.")
             return
         for u, v, w in self.graph.edges(data="weight"):
-            self.vprint(f"{u} -- {v} (cost: {w})")
+            print(f"{u} -- {v} (cost: {w})")
 
     def plot(self):
         """Visualize the graph."""

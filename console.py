@@ -1,9 +1,11 @@
+import os
 import re
-from typing import Any
-from graph_manager import GraphManager
-from routing import RoutingAlgorithm, LinkStateRouting, DistanceVectorRouting
 from collections.abc import Callable
 from functools import update_wrapper
+from typing import Any
+
+from graph_manager import GraphManager
+from routing import DistanceVectorRouting, LinkStateRouting, RoutingAlgorithm
 
 
 class Command:
@@ -101,6 +103,7 @@ def parse_command(command: str, graph_manager: GraphManager) -> bool:
         graph_manager.add_edge(first_node, second_node, cost)
         return False
 
+    # BUG: A B C 1 -> Trys to run "A"
     split_command = command.strip().split()
     if not split_command:
         # Empty command
@@ -184,8 +187,60 @@ def dv_cmd(graph_manager: GraphManager, node: str) -> bool:
     usage="file (file name)",
     description="Reads the file found at file name. Will print an error if the file is not found.",
 )
-def file_cmd() -> bool:
-    print("file is not yet implemented.")
+def file_cmd(graph_manager: GraphManager, *args, **kwargs) -> bool:
+    """Takes in a str file name and reads it into a graph.
+
+    Returns:
+        bool: Whether the terminal should quit.
+    """
+    if len(args) == 0:
+        # No file name
+        print("No file name provided!")
+        print(f"Usage: {commands.get('file').usage}")  # type: ignore
+        return False
+
+    if len(args) > 1:
+        # More than one file name
+        print(f"Too many arguments for file: '{' '.join(args)}'")
+        print(f"Usage: {commands.get('file').usage}")  # type: ignore
+        return False
+
+    file_path: str = args[0]
+    if not os.path.exists(file_path):
+        print(f"Could not find {file_path}. Please ensure you spelled it correctly.")
+        return False
+
+    # File exists. Open it.
+    graph_edges: list[str] = []
+    with open(file_path, "r") as file:
+        lines = file.readlines()
+        graph_edges = list(map(lambda x: x.strip(), lines))
+
+    # Duplicate code. Could make it into a function, but whatever
+    graph_manager.temp_mute()
+    start_edge_count = graph_manager.graph.number_of_edges()
+    for edge in graph_edges:
+        first_node, second_node, cost = parse_edge(edge)
+        if first_node is not None:
+            # assertions for type checking. They will ALWAYS pass, so keeping them does no harm.
+            assert first_node is not None
+            assert second_node is not None
+            assert cost is not None
+            if isinstance(cost, str) and cost == "-":
+                graph_manager.remove_edge(first_node, second_node)
+                continue
+
+            assert isinstance(cost, int)
+            graph_manager.add_edge(first_node, second_node, cost)
+    graph_manager.temp_unmute()
+    end_edge_count = graph_manager.graph.number_of_edges()
+    delta_edge_count = end_edge_count - start_edge_count
+    if delta_edge_count > 0:
+        print(f"Successfully added {delta_edge_count} edges to the graph!")
+    elif delta_edge_count < 0:
+        print(f"Succesffully removed {abs(delta_edge_count)} edges from the graph!")
+    else:
+        print("Number of edges in the graph remains the same!")
     return False
 
 
