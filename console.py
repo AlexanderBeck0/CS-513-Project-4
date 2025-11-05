@@ -284,4 +284,5 @@ if __name__ == "__main__":
     # Just create a wrapper of main so that I can click run in VS code without having to switch to another file
     import main
 
+    file_cmd(main.manager, "figure1.in")
     main.main()
