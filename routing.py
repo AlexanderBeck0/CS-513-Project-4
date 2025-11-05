@@ -1,8 +1,14 @@
 import heapq
+from copy import deepcopy
+from typing import Any
+
+from graph_manager import GraphManager
+
 
 class RoutingAlgorithm:
     """Base class for routing algorithms."""
-    def __init__(self, graph_manager):
+
+    def __init__(self, graph_manager: GraphManager):
         self.graph_manager = graph_manager
 
     def run(self, source: str):
@@ -18,8 +24,8 @@ class LinkStateRouting(RoutingAlgorithm):
             print(f"Node {source} not found in graph.")
             return
 
-        dist = {node: float('inf') for node in graph.nodes}
-        prev = {node: None for node in graph.nodes}
+        dist = {node: float("inf") for node in graph.nodes}
+        prev: dict[Any, None | str] = {node: None for node in graph.nodes}
         dist[source] = 0
 
         pq = [(0, source)]
@@ -27,33 +33,78 @@ class LinkStateRouting(RoutingAlgorithm):
             current_dist, current_node = heapq.heappop(pq)
             if current_dist > dist[current_node]:
                 continue
-            
+
             for neighbor, attrs in graph.adj[current_node].items():
                 weight = attrs["weight"]
                 new_dist = current_dist + weight
-                
+
                 if new_dist < dist[neighbor]:
                     dist[neighbor] = new_dist
                     prev[neighbor] = current_node
                     heapq.heappush(pq, (new_dist, neighbor))
-        
+
         results = []
         for node in graph.nodes:
-            distance = dist[node]    
-            if distance == float('inf'):
+            distance = dist[node]
+            if distance == float("inf"):
                 continue
             if node == source:
                 via = "-"
             else:
-                via = prev[node] 
+                via = prev[node]
             results.append((distance, node, via))
-        results.sort(key=lambda x: x[0]) 
+        results.sort(key=lambda x: x[0])
 
         print(f"\nRouting Table for node {source} (Sorted by Cost):")
         for distance, node, via in results:
             print(f"{node} {via} {distance}")
 
+
 class DistanceVectorRouting(RoutingAlgorithm):
     """Stub for Distance-Vector algorithm (to be implemented later)."""
+
+    def __init__(self, graph_manager: GraphManager):
+        super().__init__(graph_manager)
+
     def run(self, source: str):
-        print("Distance Vector algorithm not yet implemented.")
+        # Mantain a distance vector for each node, initialized with costs to each directly-connected nodes
+        # Each node updates its own distance vector based on updates it receives from its neighbors
+
+        # source is ONLY used to print at the end
+        # I'm thinking, when it sends it, use the min found weight
+
+        # Send its dv to each of its neighbors
+        # TODO: Add convergence testing
+        dvs = self.graph_manager.dvs
+        graph = self.graph_manager.graph
+        for node in graph:
+            if node in dvs.keys():
+                continue
+            neighbors = graph.neighbors(node)
+            dvs[node] = {}
+            for neighbor in neighbors:
+                dvs[node][neighbor] = graph.get_edge_data(node, neighbor)["weight"]
+
+            # Set distance to itself to 0
+            dvs[node][node] = 0
+
+        dvs_snapshot = deepcopy(dvs)
+        for node in dvs_snapshot.keys():
+            dv = dvs_snapshot[node]
+            for neighbor in dv.keys():
+                neighbor_dv = dvs_snapshot[neighbor]
+
+                # Combine node's dv with neighbor's dv
+                for n in neighbor_dv.keys():
+                    if n == node:
+                        continue
+
+                    current_cost = dvs_snapshot[node][neighbor]
+                    new_cost = current_cost + neighbor_dv[n]
+                    if n not in dvs[node].keys():
+                        # Add it to the keys
+                        dvs[node][n] = new_cost
+                    elif new_cost < dvs[node][n]:
+                        dvs[node][n] = new_cost
+        # TODO: Make this prettier
+        print(dvs[source])

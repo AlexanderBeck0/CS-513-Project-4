@@ -10,6 +10,8 @@ class GraphManager:
             self.verbose
         )  # used to store whatever verbose is to reverse the verbose state
 
+        self.dvs: dict[str, dict[str, int]] = {}
+
     def temp_mute(self) -> None:
         # Silence the verbosity, while keeping the previous mute state
         # This is so if verbose is already off, it won't enable it after unmuting
