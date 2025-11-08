@@ -61,7 +61,7 @@ class LinkStateRouting(RoutingAlgorithm):
 
 
 class DistanceVectorRouting(RoutingAlgorithm):
-    """Stub for Distance-Vector algorithm (to be implemented later)."""
+    """Implements the Distance Vector Routing Algorithm."""
 
     def __init__(self, graph_manager: GraphManager):
         super().__init__(graph_manager)
@@ -78,12 +78,15 @@ class DistanceVectorRouting(RoutingAlgorithm):
         dvs = self.graph_manager.dvs
         graph = self.graph_manager.graph
         for node in graph:
-            if node in dvs.keys():
-                continue
+            if node not in dvs.keys():
+                dvs[node] = {}
+
             neighbors = graph.neighbors(node)
-            dvs[node] = {}
             for neighbor in neighbors:
-                dvs[node][neighbor] = graph.get_edge_data(node, neighbor)["weight"]
+                w = graph.get_edge_data(node, neighbor)["weight"]
+                # Does this follow the definition of "one iteration"?
+                if neighbor not in dvs[node] or w < dvs[node][neighbor]:
+                    dvs[node][neighbor] = w
 
             # Set distance to itself to 0
             dvs[node][node] = 0
@@ -108,3 +111,17 @@ class DistanceVectorRouting(RoutingAlgorithm):
                         dvs[node][n] = new_cost
         # TODO: Make this prettier
         print(dvs[source])
+        if DistanceVectorRouting.dvs_equal(dvs1=dvs, dvs2=dvs_snapshot):
+            print(
+                "The Distance Vector Routing Algorithm has converged! Any future use of the dv command with the same graph will not change the output."
+            )
+
+    @staticmethod
+    def dvs_equal(
+        dvs1: dict[str, dict[str, int]], dvs2: dict[str, dict[str, int]]
+    ) -> bool:
+        # Compares the equality of two dvs's.
+        # This function is literally a waste of space but whatever
+        # Could be handy to keep in case we decide to change our definition of equal
+        # (i.e. not require node names to be equal)
+        return dvs1 == dvs2

@@ -285,4 +285,7 @@ if __name__ == "__main__":
     import main
 
     file_cmd(main.manager, "figure1.in")
+    # dv_cmd(main.manager, "A")
+    # dv_cmd(main.manager, "A")
+    # parse_command("A J 9", main.manager)
     main.main()
