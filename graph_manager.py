@@ -12,6 +12,8 @@ class GraphManager:
 
         self.dvs: dict[str, dict[str, int]] = {}
 
+        self.changes: dict[str, bool] = {}
+
     def temp_mute(self) -> None:
         # Silence the verbosity, while keeping the previous mute state
         # This is so if verbose is already off, it won't enable it after unmuting
@@ -31,11 +33,19 @@ class GraphManager:
         self.graph.add_edge(node1, node2, weight=cost)
         self.vprint(f"Added/Updated edge {node1}-{node2} with cost {cost}")
 
+        # Mark nodes as changed
+        self.changes[node1] = True
+        self.changes[node2] = True
+
     def remove_edge(self, node1: str, node2: str):
         # Possible improvement would be to make this return the removed edge
         if self.graph.has_edge(node1, node2):
             self.graph.remove_edge(node1, node2)
             self.vprint(f"Removed edge {node1}-{node2}")
+            
+            # Mark nodes as changed
+            self.changes[node1] = True
+            self.changes[node2] = True
         else:
             self.vprint(f"Edge {node1}-{node2} not found.")
 

@@ -285,7 +285,19 @@ if __name__ == "__main__":
     import main
 
     file_cmd(main.manager, "figure1.in")
-    # dv_cmd(main.manager, "A")
-    # dv_cmd(main.manager, "A")
-    # parse_command("A J 9", main.manager)
+    print("---- #1 -----")
+    dv_cmd(main.manager, "A")
+    print("---- #2 -----")
+    dv_cmd(main.manager, "A")
+    print("---- #3 -----")
+    dv_cmd(main.manager, "A")
+    
+    parse_command("A J 9", main.manager)
+    dv_cmd(main.manager, "A")
+    dv_cmd(main.manager, "A")
+    parse_command("C J 1", main.manager)
+    dv_cmd(main.manager, "A")
+    dv_cmd(main.manager, "A")
+    parse_command("C J 999", main.manager)
+    dv_cmd(main.manager, "A")
     main.main()

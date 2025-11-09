@@ -77,6 +77,9 @@ class DistanceVectorRouting(RoutingAlgorithm):
         # TODO: Add convergence testing
         dvs = self.graph_manager.dvs
         graph = self.graph_manager.graph
+        changes = self.graph_manager.changes
+        
+        # Initialization
         for node in graph:
             if node not in dvs.keys():
                 dvs[node] = {}
@@ -85,12 +88,38 @@ class DistanceVectorRouting(RoutingAlgorithm):
             for neighbor in neighbors:
                 w = graph.get_edge_data(node, neighbor)["weight"]
                 # Does this follow the definition of "one iteration"?
-                if neighbor not in dvs[node] or w < dvs[node][neighbor]:
+                # What if the following occurs:
+                # A J 9
+                # C J 1
+                # C J 999
+
+                # Start from scratch when graph changes
+                #   dvs - change AT NODE
+                # Store vias
+                
+                if node == "C" and neighbor == "J":
+                    print(changes)
+                # TODO: Check for removed edges
+                if node == "C" and neighbor == "J" and neighbor in dvs.keys():
+                    print(f"W: {w}")
+                    print(f"dvs[node][neighbore]: {dvs[node][neighbor]}")
+                    print(f"not changes node and neighbor: {not (changes[node] and changes[neighbor])}")
+                    print(f"Change in both: {changes[node] and changes[neighbor]}")
+                    print(f"Full thing: {(w < dvs[node][neighbor] and not (changes[node] and changes[neighbor]))}")
+                if neighbor not in dvs[node] or (w < dvs[node][neighbor] and not (changes[node] and changes[neighbor])) or (changes[node] and changes[neighbor]):
                     dvs[node][neighbor] = w
+                    if node == "C" and neighbor == "J":
+                        print("HIT")
+                        print(dvs[node][neighbor])
+
 
             # Set distance to itself to 0
             dvs[node][node] = 0
 
+        try:
+            print(dvs["B"]["J"])
+        except:
+            ...
         dvs_snapshot = deepcopy(dvs)
         for node in dvs_snapshot.keys():
             dv = dvs_snapshot[node]
@@ -103,6 +132,11 @@ class DistanceVectorRouting(RoutingAlgorithm):
                         continue
 
                     current_cost = dvs_snapshot[node][neighbor]
+                    if (changes[node] and changes[neighbor]):
+                        current_cost = dvs[node][neighbor]
+                        if node == "B" and neighbor == "J":
+                            print("HIT2", current_cost)
+                        
                     new_cost = current_cost + neighbor_dv[n]
                     if n not in dvs[node].keys():
                         # Add it to the keys
@@ -115,6 +149,8 @@ class DistanceVectorRouting(RoutingAlgorithm):
             print(
                 "The Distance Vector Routing Algorithm has converged! Any future use of the dv command with the same graph will not change the output."
             )
+        for node in graph:
+            changes[node] = False
 
     @staticmethod
     def dvs_equal(
