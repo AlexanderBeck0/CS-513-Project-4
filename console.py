@@ -15,12 +15,14 @@ class Command:
         func: Callable[[Any], bool],
         usage: str = "",
         description: str = "",
+        flags: dict[str, str] = []
     ):
         self.name = name
         self.usage = usage or f"No usage provided for {name}"
         self.description = description or f"No description provided for {name}"
         self.func = func
         update_wrapper(self, func)
+        self.flags = flags
 
         # https://stackoverflow.com/questions/582056/getting-list-of-parameter-names-inside-python-function#comment29479288_4051447
         self.needs_graph_manager = (
@@ -28,6 +30,7 @@ class Command:
         )
 
     def __call__(self, graph_manager=None, *args: Any, **kwargs: Any) -> Any:
+        # TODO: Pass flags
         if self.needs_graph_manager:
             return self.func(graph_manager, *args, **kwargs)
         return self.func(*args, **kwargs)
@@ -45,10 +48,10 @@ def register_command(command: Command) -> None:
     commands[command.name] = command
 
 
-def add_command(name: str, usage: str = "", description: str = ""):
+def add_command(name: str, usage: str = "", description: str = "", flags: dict[str, str] = []):
     def decorator(func):
         register_command(
-            Command(name=name, func=func, usage=usage, description=description)
+            Command(name=name, func=func, usage=usage, description=description, flags=flags)
         )
         return func
 
@@ -110,8 +113,18 @@ def parse_command(command: str, graph_manager: GraphManager) -> bool:
         return False
 
     name = split_command[0].lower()
-    args = split_command[1:]
+    # args = split_command[1:]
+    args = []
+    flags = set()
 
+    for part in split_command[1:]:
+        if part.startswith("-"):
+            for flag in part[1:]:
+                flags.add(flag)
+        else:
+            args.append(part)
+    
+    # TODO: Add flag support
     cmd = commands.get(name)
 
     if cmd:
@@ -150,6 +163,10 @@ def help_cmd(*args, **kwargs) -> bool:
 
     print(f"Help for '{name}':\n")
     print(f"Usage: {command.usage}")
+    if command.flags:
+        print("Options:")
+        for flag, description in command.flags.items():
+            print(f"\t{flag}: {description}")
     print(f"Description: {command.description}")
     return False
 
@@ -159,13 +176,21 @@ def plot_cmd(graph_manager: GraphManager) -> bool:
     graph_manager.plot()
     return False
 
+@add_command("tree", usage="tree (root node)", description="Shows the dijkstra tree of the root node.")
+def tree_cmd(graph_manager: GraphManager, root: str) -> bool:
+    graph_manager.tree(root)
+    return False
 
 @add_command(
     "ls",
-    usage="ls (node)",
+    usage="ls (node) [-i]",
     description="Calculates and prints routing table using link-state routing algorithm.",
+    flags={"i": "Runs iteratively."}
 )
 def ls_cmd(graph_manager: GraphManager, node: str) -> bool:
+    # iterative = False
+    # if "i" in flags:
+    #     iterative = True
     link_state_routing_alg = LinkStateRouting(graph_manager)
     link_state_routing_alg.run(node)
     return False
@@ -173,8 +198,9 @@ def ls_cmd(graph_manager: GraphManager, node: str) -> bool:
 
 @add_command(
     "dv",
-    usage="dv (node)",
+    usage="dv (node) [-i]",
     description="Calculates and prints routing table using distance-vector routing algorithm.",
+    flags={"i": "Runs iteratively."}
 )
 def dv_cmd(graph_manager: GraphManager, node: str) -> bool:
     distance_vector_routing_alg = DistanceVectorRouting(graph_manager)

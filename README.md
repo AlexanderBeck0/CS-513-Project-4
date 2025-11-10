@@ -18,6 +18,10 @@ Simply type `X Y {cost}`. A node is represented as a single capital letter, and 
 
 Typing `X Y -` will remove the edge between `X` and `Y`. It will keep `X` and `Y`. If no such edge exists, it will ignore the command.
 
+### Updating a Graph Edge Cost
+
+Typing `X Y {cost}` will update the cost of the edge between `X` and `Y`.
+
 ### Algorithm Commands
 
 1. [ls](#ls)
@@ -33,7 +37,7 @@ Calculates and prints routing table using link-state routing algorithm.
 
 Usage: `dv (node)`
 
-Calculates and prints routing table using distance-vector routing algorithm.
+Calculates and prints routing table using distance-vector routing algorithm. Runs one iteration at a time, and will output when the distance vectors converge.
 
 ### Other Commands
 
@@ -41,6 +45,7 @@ Calculates and prints routing table using distance-vector routing algorithm.
 1. [help](#help)
 1. [file](#file)
 1. [plot](#plot)
+1. [tree](#tree)
 
 #### exit
 
@@ -65,3 +70,9 @@ Reads the file found at file name. Will print an error if the file is not found.
 Usage: `plot`
 
 Plots the graph.
+
+#### tree
+
+Usage: `tree (root node)`
+
+Plots the Dijkstra spanning tree from the given node.

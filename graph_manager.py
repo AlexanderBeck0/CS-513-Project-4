@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import networkx as nx
 
-
 class GraphManager:
     def __init__(self):
         self.graph = nx.Graph()
@@ -13,8 +12,6 @@ class GraphManager:
         self.dvs: dict[str, dict[str, int]] = {}
 
         self.changes: dict[str, bool] = {}
-
-        self.vias: dict[str, dict[str, str]] = {}
 
         self.graphs: dict[str, nx.Graph] = {}
 
@@ -69,4 +66,30 @@ class GraphManager:
         nx.draw(self.graph, pos, with_labels=True, node_color="skyblue", node_size=1000)
         nx.draw_networkx_edge_labels(self.graph, pos, edge_labels=weights, rotate=False)
         plt.title("Network Graph")
+        plt.show()
+
+    def tree(self, root: str) -> None:
+        from routing import dijkstra
+        dijkstra_results = dijkstra(root, self.graph)
+
+        # Construct graph from dijkstra_results
+        dijkstra_tree = nx.Graph()
+        dijkstra_tree.add_node(root)
+
+        for distance, node, via in dijkstra_results:
+            if via is None or via == "-":
+                continue
+            if node not in dijkstra_tree.nodes:
+                dijkstra_tree.add_node(node)
+            if via not in dijkstra_tree.nodes:
+                dijkstra_tree.add_node(via)
+            dijkstra_tree.add_edge(via, node, weight=distance)
+        
+        
+        pos = nx.bfs_layout(dijkstra_tree, start=root)
+        weights = nx.get_edge_attributes(dijkstra_tree, "weight")
+        nx.draw(dijkstra_tree, pos, with_labels=True, node_color="skyblue", node_size=1000)
+        nx.draw_networkx_edge_labels(dijkstra_tree, pos, edge_labels=weights, rotate=False)
+        plt.title("Tree")
+        plt.savefig("ALEXSVIEW.png")
         plt.show()
