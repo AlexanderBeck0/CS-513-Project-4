@@ -14,6 +14,10 @@ class GraphManager:
 
         self.changes: dict[str, bool] = {}
 
+        self.vias: dict[str, dict[str, str]] = {}
+
+        
+
     def temp_mute(self) -> None:
         # Silence the verbosity, while keeping the previous mute state
         # This is so if verbose is already off, it won't enable it after unmuting

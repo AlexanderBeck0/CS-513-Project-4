@@ -66,7 +66,7 @@ class DistanceVectorRouting(RoutingAlgorithm):
     def __init__(self, graph_manager: GraphManager):
         super().__init__(graph_manager)
 
-    def run(self, source: str):
+    def _run(self, source: str):
         # Mantain a distance vector for each node, initialized with costs to each directly-connected nodes
         # Each node updates its own distance vector based on updates it receives from its neighbors
 
@@ -97,16 +97,21 @@ class DistanceVectorRouting(RoutingAlgorithm):
                 #   dvs - change AT NODE
                 # Store vias
                 
-                if node == "C" and neighbor == "J":
-                    print(changes)
                 # TODO: Check for removed edges
-                if node == "C" and neighbor == "J" and neighbor in dvs.keys():
+                if node == "C" and neighbor == "J" and neighbor in dvs.keys() and "J" in dvs[node].keys():
                     print(f"W: {w}")
                     print(f"dvs[node][neighbore]: {dvs[node][neighbor]}")
                     print(f"not changes node and neighbor: {not (changes[node] and changes[neighbor])}")
                     print(f"Change in both: {changes[node] and changes[neighbor]}")
                     print(f"Full thing: {(w < dvs[node][neighbor] and not (changes[node] and changes[neighbor]))}")
-                if neighbor not in dvs[node] or (w < dvs[node][neighbor] and not (changes[node] and changes[neighbor])) or (changes[node] and changes[neighbor]):
+                # edge_changed = changes[node] and changes[neighbor]
+                edge_changed = changes[node] and changes[neighbor]
+                if (
+                    neighbor not in dvs[node] 
+                    or (w < dvs[node][neighbor] and not edge_changed) 
+                    or edge_changed
+                ):
+                # if neighbor not in dvs[node] or w < dvs[node][neighbor] or (changes[node] and changes[neighbor]):
                     dvs[node][neighbor] = w
                     if node == "C" and neighbor == "J":
                         print("HIT")
@@ -116,23 +121,24 @@ class DistanceVectorRouting(RoutingAlgorithm):
             # Set distance to itself to 0
             dvs[node][node] = 0
 
-        try:
-            print(dvs["B"]["J"])
-        except:
-            ...
         dvs_snapshot = deepcopy(dvs)
         for node in dvs_snapshot.keys():
+            # [A, B, C]
             dv = dvs_snapshot[node]
-            for neighbor in dv.keys():
+            for neighbor in graph.neighbors(node):
+                # for Node A:
+                # neighbors: [B D E J]
                 neighbor_dv = dvs_snapshot[neighbor]
+                # for D:
+                # [A F E]
 
                 # Combine node's dv with neighbor's dv
-                for n in neighbor_dv.keys():
+                for n in graph.neighbors(neighbor):
                     if n == node:
                         continue
 
                     current_cost = dvs_snapshot[node][neighbor]
-                    if (changes[node] and changes[neighbor]):
+                    if (changes[n] and changes[neighbor]):
                         current_cost = dvs[node][neighbor]
                         if node == "B" and neighbor == "J":
                             print("HIT2", current_cost)
@@ -145,12 +151,91 @@ class DistanceVectorRouting(RoutingAlgorithm):
                         dvs[node][n] = new_cost
         # TODO: Make this prettier
         print(dvs[source])
+        # DistanceVectorRouting.dv_difference(dvs, dvs_snapshot)
         if DistanceVectorRouting.dvs_equal(dvs1=dvs, dvs2=dvs_snapshot):
             print(
                 "The Distance Vector Routing Algorithm has converged! Any future use of the dv command with the same graph will not change the output."
             )
         for node in graph:
             changes[node] = False
+
+
+    def run(self, source: str):
+        graph = self.graph_manager.graph
+        dvs = self.graph_manager.dvs
+        changes = self.graph_manager.changes
+
+        # --- 1. Initialization (create DV table if new node) ---
+        for node in graph.nodes:
+            if node not in dvs:
+                dvs[node] = {}
+
+            # initialize each destination with ∞
+            for dest in graph.nodes:
+                dvs[node].setdefault(dest, float("inf"))
+            dvs[node][node] = 0  # self-distance = 0
+
+            # set direct neighbors' costs
+            for neighbor, attrs in graph[node].items():
+                dvs[node][neighbor] = attrs["weight"]
+
+        # --- 2. Snapshot before update (to check convergence) ---
+        old_dvs = deepcopy(dvs)
+
+        # --- 3. Distance Vector Update (one iteration) ---
+        for x in graph.nodes:
+            for y in graph.nodes:
+                if x == y:
+                    continue
+                # apply Bellman-Ford equation
+                min_cost = float("inf")
+                for v, attrs in graph[x].items():  # for each neighbor v of x
+                    c_xv = attrs["weight"]
+                    cost_vy = dvs[v].get(y, float("inf"))
+                    min_cost = min(min_cost, c_xv + cost_vy)
+                dvs[x][y] = min_cost
+
+        # --- 4. Check for convergence ---
+        if DistanceVectorRouting.dvs_equal(dvs, old_dvs):
+            print("The Distance-Vector routing algorithm has converged.")
+        else:
+            print("Distance-Vector routing table updated.")
+
+        # --- 5. Reset change flags ---
+        for node in graph.nodes:
+            changes[node] = False
+
+        # --- 6. Print routing table for requested node ---
+        if source not in graph.nodes:
+            print(f"Node {source} not found in graph.")
+            return
+
+        print(f"\nDistance Vector for node {source}:")
+        for dest in sorted(graph.nodes):
+            d = dvs[source].get(dest, float("inf"))
+            if d != float("inf"):
+                print(f"{dest} {d}")
+            else:
+                print(f"{dest} ∞")
+
+    @staticmethod
+    def dv_difference(dvs1: dict, dvs2: dict):
+        differences = {}
+        real_diff = {}
+        for key in set(dvs1.keys()) & set(dvs2.keys()):
+            if dvs1[key] != dvs2[key]:
+                differences[key] = (dvs1[key], dvs2[key])
+        
+        for k in differences:
+            for key in set(differences[k][0].keys()) & set(differences[k][1].keys()):
+                if differences[k][0][key] != differences[k][1][key]:
+                    real_diff[key] = (differences[k][0][key], differences[k][1][key])
+
+
+        for k in real_diff:
+            print(f"Key: {k}")
+            print(f"dvs: {real_diff[k][0]}")
+            print(f"dvs_snapshot: {real_diff[k][1]}")
 
     @staticmethod
     def dvs_equal(
