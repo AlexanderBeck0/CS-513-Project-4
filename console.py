@@ -294,21 +294,16 @@ if __name__ == "__main__":
     
     parse_command("A J 9", main.manager)
     dv_cmd(main.manager, "A")
-    dv_cmd(main.manager, "A")
-    dv_cmd(main.manager, "A")
-    dv_cmd(main.manager, "A")
-    dv_cmd(main.manager, "A")
 
     plot_cmd(main.manager)
+    
     parse_command("C J 1", main.manager)
-    dv_cmd(main.manager, "A")
     dv_cmd(main.manager, "A")
     dv_cmd(main.manager, "A")
 
     plot_cmd(main.manager)
 
     parse_command("C J 999", main.manager)
-    dv_cmd(main.manager, "A")
     dv_cmd(main.manager, "A")
     
     main.main()

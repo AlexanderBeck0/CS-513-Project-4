@@ -16,7 +16,7 @@ class GraphManager:
 
         self.vias: dict[str, dict[str, str]] = {}
 
-        
+        self.graphs: dict[str, nx.Graph] = {}
 
     def temp_mute(self) -> None:
         # Silence the verbosity, while keeping the previous mute state
