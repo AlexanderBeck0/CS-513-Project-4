@@ -90,6 +90,5 @@ class GraphManager:
         weights = nx.get_edge_attributes(dijkstra_tree, "weight")
         nx.draw(dijkstra_tree, pos, with_labels=True, node_color="skyblue", node_size=1000)
         nx.draw_networkx_edge_labels(dijkstra_tree, pos, edge_labels=weights, rotate=False)
-        plt.title("Tree")
-        plt.savefig("ALEXSVIEW.png")
+        plt.title("Spanning Tree")
         plt.show()
