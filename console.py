@@ -53,6 +53,7 @@ def add_command(name: str, usage: str = "", description: str = "", flags: dict[s
         register_command(
             Command(name=name, func=func, usage=usage, description=description, flags=flags)
         )
+        # TODO: If func returns None, have it return False (maybe?)
         return func
 
     return decorator
@@ -269,6 +270,13 @@ def file_cmd(graph_manager: GraphManager, *args, **kwargs) -> bool:
         print("Number of edges in the graph remains the same!")
     return False
 
+@add_command("centrality", usage="centrality", description="Used to find the betweenness centrality of the graph")
+def centrality_cmd(graph_manager: GraphManager) -> bool:
+    import centrality
+    betweenness_centrality = centrality.brandes_centrality(graph_manager)
+    for k, v in betweenness_centrality.items():
+        print(f"{k}: {v:.2f}")
+    return False
 
 def parse_edge(command: str) -> tuple[str, str, int | str] | tuple[None, None, None]:
     """Gets the components of an edge in the form `X Y {cost}`, or None if it is not in that form.
