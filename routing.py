@@ -35,7 +35,7 @@ class LinkStateRouting(RoutingAlgorithm):
         for distance, node, via in results:
             print(f"{node} {via} {distance}")
 
-def dijkstra(source: str, graph: nx.Graph, iterative: bool = False) -> tuple[float, str, str]:
+def dijkstra(source: str, graph: nx.Graph, iterative: bool = False) -> list[tuple[float, str, str]]:
     """Runs Dijkstra and returns a tuple of (distance, node, via). If iterative is True, will run it iteratively"""
     assert source in graph.nodes
     dist = {node: float("inf") for node in graph.nodes}

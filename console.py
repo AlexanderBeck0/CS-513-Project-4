@@ -15,7 +15,7 @@ class Command:
         func: Callable[[Any], bool],
         usage: str = "",
         description: str = "",
-        flags: dict[str, str] = []
+        flags: dict[str, str] = {}
     ):
         self.name = name
         self.usage = usage or f"No usage provided for {name}"
@@ -48,7 +48,7 @@ def register_command(command: Command) -> None:
     commands[command.name] = command
 
 
-def add_command(name: str, usage: str = "", description: str = "", flags: dict[str, str] = []):
+def add_command(name: str, usage: str = "", description: str = "", flags: dict[str, str] = {}):
     def decorator(func):
         register_command(
             Command(name=name, func=func, usage=usage, description=description, flags=flags)
