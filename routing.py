@@ -111,7 +111,7 @@ class DistanceVectorRouting(RoutingAlgorithm):
                 graphs[node] = nx.compose(graphs[node], graphs[neighbor])
 
         # Find shortest path (reusing code :D)
-        LinkStateRouting(graph_manager=self.graph_manager, graph=graphs[source]).run(source, iterative=self.iterative)
+        LinkStateRouting(graph_manager=self.graph_manager, graph=graphs[source]).run(source)
 
         # Check if the graph has converged
         converged = nx.is_isomorphic(graphs[source], pre_graph)
