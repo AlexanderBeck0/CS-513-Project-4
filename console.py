@@ -5,7 +5,12 @@ from functools import update_wrapper
 from typing import Any
 
 from graph_manager import GraphManager
-from routing import DistanceVectorRouting, LinkStateRouting, RoutingAlgorithm
+from routing import (
+    DistanceVectorRouting,
+    LinkStateRouting,
+    RoutingAlgorithm,
+    average_shortest_path,
+)
 
 
 class Command:
@@ -15,7 +20,7 @@ class Command:
         func: Callable[[Any], bool],
         usage: str = "",
         description: str = "",
-        flags: dict[str, str] = {}
+        flags: dict[str, str] = {},
     ):
         self.name = name
         self.usage = usage or f"No usage provided for {name}"
@@ -48,10 +53,14 @@ def register_command(command: Command) -> None:
     commands[command.name] = command
 
 
-def add_command(name: str, usage: str = "", description: str = "", flags: dict[str, str] = {}):
+def add_command(
+    name: str, usage: str = "", description: str = "", flags: dict[str, str] = {}
+):
     def decorator(func):
         register_command(
-            Command(name=name, func=func, usage=usage, description=description, flags=flags)
+            Command(
+                name=name, func=func, usage=usage, description=description, flags=flags
+            )
         )
         # TODO: If func returns None, have it return False (maybe?)
         return func
@@ -124,7 +133,7 @@ def parse_command(command: str, graph_manager: GraphManager) -> bool:
                 flags.add(flag)
         else:
             args.append(part)
-    
+
     # TODO: Add flag support
     cmd = commands.get(name)
 
@@ -177,16 +186,22 @@ def plot_cmd(graph_manager: GraphManager) -> bool:
     graph_manager.plot()
     return False
 
-@add_command("tree", usage="tree (root node)", description="Shows the dijkstra tree of the root node.")
+
+@add_command(
+    "tree",
+    usage="tree (root node)",
+    description="Shows the dijkstra tree of the root node.",
+)
 def tree_cmd(graph_manager: GraphManager, root: str) -> bool:
     graph_manager.tree(root)
     return False
+
 
 @add_command(
     "ls",
     usage="ls (node) [-i]",
     description="Calculates and prints routing table using link-state routing algorithm.",
-    flags={"i": "Runs iteratively."}
+    flags={"i": "Runs iteratively."},
 )
 def ls_cmd(graph_manager: GraphManager, node: str) -> bool:
     # iterative = False
@@ -201,7 +216,7 @@ def ls_cmd(graph_manager: GraphManager, node: str) -> bool:
     "dv",
     usage="dv (node) [-i]",
     description="Calculates and prints routing table using distance-vector routing algorithm.",
-    flags={"i": "Runs iteratively."}
+    flags={"i": "Runs iteratively."},
 )
 def dv_cmd(graph_manager: GraphManager, node: str) -> bool:
     distance_vector_routing_alg = DistanceVectorRouting(graph_manager)
@@ -270,13 +285,36 @@ def file_cmd(graph_manager: GraphManager, *args, **kwargs) -> bool:
         print("Number of edges in the graph remains the same!")
     return False
 
-@add_command("centrality", usage="centrality", description="Used to find the betweenness centrality of the graph")
+
+@add_command(
+    "centrality",
+    usage="centrality",
+    description="Used to find the betweenness centrality of the graph.",
+)
 def centrality_cmd(graph_manager: GraphManager) -> bool:
     import centrality
+
     betweenness_centrality = centrality.brandes_centrality(graph_manager)
     for k, v in betweenness_centrality.items():
         print(f"{k}: {v:.2f}")
     return False
+
+
+@add_command(
+    "stats",
+    usage="stats",
+    description="Used to find the max, min, and average shortest path length.",
+)
+def stats_cmd(graph_manager: GraphManager) -> bool:
+    # TODO: Make this take a node as input and give stats of that node
+    max_node, min_node, avg_len, dijkstra_len = average_shortest_path(
+        graph_manager.graph
+    )
+    print(f"Node with max shortest path length: {max_node} ({dijkstra_len[max_node]:.2f})")
+    print(f"Node with min shortest path length: {min_node} ({dijkstra_len[min_node]:.2f})")
+    print(f"Average shortest path length: {avg_len}")
+    return False
+
 
 def parse_edge(command: str) -> tuple[str, str, int | str] | tuple[None, None, None]:
     """Gets the components of an edge in the form `X Y {cost}`, or None if it is not in that form.
@@ -325,19 +363,15 @@ if __name__ == "__main__":
     dv_cmd(main.manager, "A")
     print("---- #3 -----")
     dv_cmd(main.manager, "A")
-    
+
     parse_command("A J 9", main.manager)
     dv_cmd(main.manager, "A")
 
-    plot_cmd(main.manager)
-    
     parse_command("C J 1", main.manager)
     dv_cmd(main.manager, "A")
     dv_cmd(main.manager, "A")
 
-    plot_cmd(main.manager)
-
     parse_command("C J 999", main.manager)
     dv_cmd(main.manager, "A")
-    
+
     main.main()

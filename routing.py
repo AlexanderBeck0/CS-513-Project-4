@@ -35,9 +35,12 @@ class LinkStateRouting(RoutingAlgorithm):
         for distance, node, via in results:
             print(f"{node} {via} {distance}")
 
-def dijkstra(source: str, graph: nx.Graph, iterative: bool = False) -> list[tuple[float, str, str]]:
+
+def dijkstra(
+    source: str, graph: nx.Graph, iterative: bool = False
+) -> list[tuple[float, str, str]]:
     """Runs Dijkstra and returns a list of tuples (distance, node, via). If iterative is True, will run it iteratively
-    
+
     Returns:
         list: [(distance: float, node: str, via: str)]
     """
@@ -77,6 +80,17 @@ def dijkstra(source: str, graph: nx.Graph, iterative: bool = False) -> list[tupl
     return results
 
 
+def average_shortest_path(graph: nx.Graph) -> tuple[str, str, float, dict[str, float]]:
+    dijkstra_len: dict[str, float] = dict.fromkeys(list(graph.nodes), 0.0)
+    for node in graph:
+        results = dijkstra(node, graph, iterative=False)
+        dijkstra_len[node] = sum([result[0] for result in results]) / len(results)
+    max_node: str = max(dijkstra_len, key=dijkstra_len.get)  # type: ignore
+    min_node: str = min(dijkstra_len, key=dijkstra_len.get)  # type: ignore
+    avg_len: float = sum(dijkstra_len.values()) / len(dijkstra_len)
+    return max_node, min_node, avg_len, dijkstra_len
+
+
 class DistanceVectorRouting(RoutingAlgorithm):
     """Implements the Distance Vector Routing Algorithm."""
 
@@ -84,8 +98,8 @@ class DistanceVectorRouting(RoutingAlgorithm):
         super().__init__(graph_manager)
 
     def run(self, source: str, iterative: bool = False):
-        graphs = self.graph_manager.graphs # Distributed graphs
-        graph = self.graph_manager.graph # Overall graph
+        graphs = self.graph_manager.graphs  # Distributed graphs
+        graph = self.graph_manager.graph  # Overall graph
         self.iterative = iterative
 
         # Check if source node exists
@@ -105,7 +119,7 @@ class DistanceVectorRouting(RoutingAlgorithm):
             for u, v in list(graphs[node].edges()):
                 if not graph.has_edge(u, v):
                     graphs[node].remove_edge(u, v)
-        
+
         # Freeze graph state for convergence check
         pre_graph = deepcopy(graphs[source])
 
@@ -115,13 +129,16 @@ class DistanceVectorRouting(RoutingAlgorithm):
                 graphs[node] = nx.compose(graphs[node], graphs[neighbor])
 
         # Find shortest path (reusing code :D)
-        LinkStateRouting(graph_manager=self.graph_manager, graph=graphs[source]).run(source)
+        LinkStateRouting(graph_manager=self.graph_manager, graph=graphs[source]).run(
+            source
+        )
 
         # Check if the graph has converged
         converged = nx.is_isomorphic(graphs[source], pre_graph)
         if converged:
-            print("The Distance Vector Routing Algorithm has converged! Any future use of the dv command with the same graph will not change the output.")
-
+            print(
+                "The Distance Vector Routing Algorithm has converged! Any future use of the dv command with the same graph will not change the output."
+            )
 
     @staticmethod
     def dv_difference(dvs1: dict, dvs2: dict):
@@ -130,12 +147,11 @@ class DistanceVectorRouting(RoutingAlgorithm):
         for key in set(dvs1.keys()) & set(dvs2.keys()):
             if dvs1[key] != dvs2[key]:
                 differences[key] = (dvs1[key], dvs2[key])
-        
+
         for k in differences:
             for key in set(differences[k][0].keys()) & set(differences[k][1].keys()):
                 if differences[k][0][key] != differences[k][1][key]:
                     real_diff[key] = (differences[k][0][key], differences[k][1][key])
-
 
         for k in real_diff:
             print(f"Key: {k}")

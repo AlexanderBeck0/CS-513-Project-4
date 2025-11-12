@@ -46,6 +46,7 @@ Calculates and prints routing table using distance-vector routing algorithm. Run
 1. [file](#file)
 1. [plot](#plot)
 1. [tree](#tree)
+1. [stats](#stats)
 
 #### exit
 
@@ -76,3 +77,15 @@ Plots the graph.
 Usage: `tree (root node)`
 
 Plots the Dijkstra spanning tree from the given node.
+
+#### centrality
+
+Usage `centrality`
+
+Used to find the betweenness centrality of the graph.
+
+#### stats
+
+Usage: `stats`
+
+Reports the maximum, minimum, and average length of shortest distance paths.

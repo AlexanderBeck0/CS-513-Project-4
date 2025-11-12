@@ -58,14 +58,20 @@ class GraphManager:
         for u, v, w in self.graph.edges(data="weight"):
             print(f"{u} -- {v} (cost: {w})")
 
-    def plot(self):
-        """Visualize the graph."""
+    def plot(self, file_name: str = ""):
+        """Visualize the plot.
+
+        Args:
+            file_name (str, optional): The name of the file to save to. Will not be saved if no name is provided. Defaults to "".
+        """
         pos = nx.spring_layout(self.graph)
 
         weights = nx.get_edge_attributes(self.graph, "weight")
         nx.draw(self.graph, pos, with_labels=True, node_color="skyblue", node_size=1000)
         nx.draw_networkx_edge_labels(self.graph, pos, edge_labels=weights, rotate=False)
         plt.title("Network Graph")
+        if file_name:
+            plt.savefig(file_name)
         plt.show()
 
     def tree(self, root: str) -> None:
