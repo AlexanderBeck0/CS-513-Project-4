@@ -25,19 +25,39 @@ Typing `X Y {cost}` will update the cost of the edge between `X` and `Y`.
 ### Algorithm Commands
 
 1. [ls](#ls)
+1. [dls](#dls)
 1. [dv](#dv)
 
 #### ls
 
-Usage: `ls (node)`
+Usage: `ls (node) [-i]`
 
 Calculates and prints routing table using link-state routing algorithm.
 
+Options:
+
+* `-i`: Runs link state algorithm iteratively.
+
+#### dls
+
+Usage: `dls (node) [-i]`
+
+Runs a distributed Link State routing algorithm that uses graphs.
+
+Options:
+
+* `-i`: Runs a distributed link state algorithm iteratively.
+
 #### dv
 
-Usage: `dv (node)`
+Usage: `dv (node) [-i] [-r]`
 
 Calculates and prints routing table using distance-vector routing algorithm. Runs one iteration at a time, and will output when the distance vectors converge.
+
+Options:
+
+* `-i`: Runs distance vector algorithm iteratively.
+* `-r`: Resets the distance vector table and runs from scratch.
 
 ### Other Commands
 
@@ -46,6 +66,7 @@ Calculates and prints routing table using distance-vector routing algorithm. Run
 1. [file](#file)
 1. [plot](#plot)
 1. [tree](#tree)
+1. [centrality](#centrality)
 1. [stats](#stats)
 
 #### exit
