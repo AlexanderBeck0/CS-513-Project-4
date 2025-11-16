@@ -51,24 +51,23 @@ class LinkStateRouting(RoutingAlgorithm):
 
         self.graph = graph if graph is not None else graph_manager.graph
 
-    def run(self, source: str, iterative: bool = False) -> bool:
+    def run(self, source: str, iterative=False) -> bool:
+        # Ignore iterative but keep it for inheritence
+
         graph = self.graph
-        self.iterative = iterative
         if source not in graph.nodes:
             print(f"Node {source} not found in graph.")
             return
 
-        results = dijkstra(source=source, graph=graph, iterative=self.iterative)
+        results = dijkstra(source=source, graph=graph)
         print_vias(results, source)
 
-        if not iterative:
-            # No need to even do a convergence check, it will be converged
-            return True
+        return True
 
 
 
 def dijkstra(
-    source: str, graph: nx.Graph, iterative: bool = False
+    source: str, graph: nx.Graph
 ) -> list[tuple[float, str, str]]:
     """Runs Dijkstra and returns a list of tuples (distance, node, via). If iterative is True, will run it iteratively
 
@@ -94,8 +93,6 @@ def dijkstra(
                 dist[neighbor] = new_dist
                 prev[neighbor] = current_node
                 heapq.heappush(pq, (new_dist, neighbor))
-        if iterative:
-            break
     
     results = find_vias(graph, dist, prev, source)
     return results
@@ -140,9 +137,22 @@ class DistributredLinkStateRouting(RoutingAlgorithm):
         super().__init__(graph_manager)
 
     def run(self, source: str, iterative: bool = False) -> bool:
+        if iterative:
+            # Run iteratively 
+            return self.run_iterative(source)
+        else:
+            # Run until completion
+            run_count = 0
+            while not self.run_iterative(source):
+                run_count += 1
+                if run_count == 10:
+                    print("Distributed Link State Routing Algorithm ran 10 times and did not converge. Stopping.")
+                    return False
+            return True
+
+    def run_iterative(self, source: str) -> bool:
         graphs = self.graph_manager.graphs  # Distributed graphs
         graph = self.graph_manager.graph  # Overall graph
-        self.iterative = iterative
 
         # Check if source node exists
         if source not in graph.nodes:
@@ -172,7 +182,7 @@ class DistributredLinkStateRouting(RoutingAlgorithm):
 
         # Find shortest path (reusing code :D)
         LinkStateRouting(graph_manager=self.graph_manager, graph=graphs[source]).run(
-            source, iterative=iterative
+            source, iterative=False
         )
 
         # Check if the graph has converged
@@ -191,6 +201,20 @@ class DistanceVectorRouting(RoutingAlgorithm):
         super().__init__(graph_manager)
 
     def run(self, source: str, iterative: bool = False):
+        if iterative:
+            # Run iteratively 
+            return self.run_iterative(source)
+        else:
+            # Run until completion
+            run_count = 0
+            while not self.run_iterative(source):
+                run_count += 1
+                if run_count == 10:
+                    print("Distributed Vector Routing Algorithm ran 10 times and did not converge. Stopping.")
+                    return False
+            return True
+
+    def run_iterative(self, source: str) -> bool:
         graph = self.graph_manager.graph
         dvs = self.graph_manager.dvs
         prev: dict[Any, None | str] = {node: None for node in graph.nodes}
@@ -199,7 +223,8 @@ class DistanceVectorRouting(RoutingAlgorithm):
             if node not in dvs:
                 dvs[node] = {}
 
-            dvs[node][node] = 0  # self-distance = 0
+            # distance to self is 0
+            dvs[node][node] = 0
 
             # set direct neighors costs
             # for neighbor, attrs in graph[node].items():

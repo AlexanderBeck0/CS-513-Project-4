@@ -196,49 +196,66 @@ def plot_cmd(graph_manager: GraphManager) -> bool:
     usage="tree (root node)",
     description="Shows the dijkstra tree of the root node.",
 )
-def tree_cmd(graph_manager: GraphManager, root: str) -> bool:
+def tree_cmd(graph_manager: GraphManager, root: str = "") -> bool:
+    if root == "":
+        print("Usage: ", commands["tree"].usage)
+        return False
     graph_manager.tree(root)
     return False
 
 
 @add_command(
     "ls",
-    usage="ls (node) [-i]",
-    description="Calculates and prints routing table using link-state routing algorithm.",
-    flags={"i": "Runs iteratively."},
+    usage="ls (node)",
+    description="Calculates and prints routing table using link-state routing algorithm. Output is read destination <- from (cost)."
 )
-def ls_cmd(graph_manager: GraphManager, node: str, i = False) -> bool:
+def ls_cmd(graph_manager: GraphManager, node: str = "") -> bool:
+    if node == "":
+        print("Usage: ", commands["ls"].usage)
+        return False
     link_state_routing_alg = LinkStateRouting(graph_manager)
-    link_state_routing_alg.run(node, iterative=i)
+    link_state_routing_alg.run(node)
     return False
 
 
 @add_command(
     "dv",
     usage="dv (node) [-i] [-r]",
-    description="Calculates and prints routing table using distance-vector routing algorithm.",
+    description="Calculates and prints routing table using distance-vector routing algorithm. Output is read destination <- from (cost).",
     flags={"i": "Runs iteratively.", "r": "Resets the distance vectors"},
 )
-def dv_cmd(graph_manager: GraphManager, node: str, i=False, r=False) -> bool:
+def dv_cmd(graph_manager: GraphManager, node: str = "", i=False, r=False) -> bool:
     if r:
         graph_manager.dvs = {}
         graph_manager.changes = {}
         graph_manager.graphs = {}
+        print("Reset distance vectors.")
+        if node == "":
+            return False
+    if node == "" and not r:
+        print("Usage: ", commands["dv"].usage)
+        return False
     distance_vector_routing_alg = DistanceVectorRouting(graph_manager)
     distance_vector_routing_alg.run(node, iterative=i)
     return False
 
 @add_command(
     "dls",
-    usage="dv (node) [-i] [-r]",
-    description="Calculates and prints routing table using distributed link-state routing algorithm.",
+    usage="dls (node) [-i] [-r]",
+    description="Calculates and prints routing table using distributed link-state routing algorithm. Output is read destination <- from (cost).",
     flags={"i": "Runs iteratively.", "r": "Resets the distance vectors"},
 )
-def dls_cmd(graph_manager: GraphManager, node: str, i=False, r=False) -> bool:
+def dls_cmd(graph_manager: GraphManager, node: str = "", i=False, r=False) -> bool:
     if r:
         graph_manager.dvs = {}
         graph_manager.changes = {}
         graph_manager.graphs = {}
+        print("Reset distance vectors.")
+        if node == "":
+            return False
+    if node == "" and not r:
+        print("Usage: ", commands["dls"].usage)
+        return False
     distributed_link_state_routing_alg = DistributredLinkStateRouting(graph_manager)
     distributed_link_state_routing_alg.run(node, iterative=i)
     return False

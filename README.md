@@ -30,19 +30,15 @@ Typing `X Y {cost}` will update the cost of the edge between `X` and `Y`.
 
 #### ls
 
-Usage: `ls (node) [-i]`
+Usage: `ls (node)`
 
 Calculates and prints routing table using link-state routing algorithm.
-
-Options:
-
-* `-i`: Runs link state algorithm iteratively.
 
 #### dls
 
 Usage: `dls (node) [-i]`
 
-Runs a distributed Link State routing algorithm that uses graphs.
+Runs a distributed Link State routing algorithm that uses graphs. When running non-iteratively, if the distance vector does not converge within 10 runs, the command exits, preventing an infinite loop due to the count-to-infinity problem.
 
 Options:
 
@@ -52,7 +48,7 @@ Options:
 
 Usage: `dv (node) [-i] [-r]`
 
-Calculates and prints routing table using distance-vector routing algorithm. Runs one iteration at a time, and will output when the distance vectors converge.
+Calculates and prints routing table using distance-vector routing algorithm. Runs one iteration at a time, and will output when the distance vectors converge. When running non-iteratively, if the distance vector does not converge within 10 runs, the command exits, preventing an infinite loop due to the count-to-infinity problem.
 
 Options:
 

@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 import networkx as nx
-import heapq
 
 class GraphManager:
     def __init__(self):
@@ -11,8 +10,6 @@ class GraphManager:
         )  # used to store whatever verbose is to reverse the verbose state
 
         self.dvs: dict[str, dict[str, int]] = {}
-
-        self.pqs: heapq = {}
 
         self.graphs: dict[str, nx.Graph] = {}
 
