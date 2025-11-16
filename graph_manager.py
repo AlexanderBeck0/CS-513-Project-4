@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import networkx as nx
+import heapq
 
 class GraphManager:
     def __init__(self):
@@ -11,7 +12,7 @@ class GraphManager:
 
         self.dvs: dict[str, dict[str, int]] = {}
 
-        self.changes: dict[str, bool] = {}
+        self.pqs: heapq = {}
 
         self.graphs: dict[str, nx.Graph] = {}
 
@@ -34,19 +35,11 @@ class GraphManager:
         self.graph.add_edge(node1, node2, weight=cost)
         self.vprint(f"Added/Updated edge {node1}-{node2} with cost {cost}")
 
-        # Mark nodes as changed
-        self.changes[node1] = True
-        self.changes[node2] = True
-
     def remove_edge(self, node1: str, node2: str):
         # Possible improvement would be to make this return the removed edge
         if self.graph.has_edge(node1, node2):
             self.graph.remove_edge(node1, node2)
             self.vprint(f"Removed edge {node1}-{node2}")
-            
-            # Mark nodes as changed
-            self.changes[node1] = True
-            self.changes[node2] = True
         else:
             self.vprint(f"Edge {node1}-{node2} not found.")
 
