@@ -8,6 +8,7 @@ from graph_manager import GraphManager
 from routing import (
     DistanceVectorRouting,
     LinkStateRouting,
+    DistributredLinkStateRouting,
     RoutingAlgorithm,
     average_shortest_path,
 )
@@ -35,10 +36,12 @@ class Command:
         )
 
     def __call__(self, graph_manager=None, *args: Any, **kwargs: Any) -> Any:
-        # TODO: Pass flags
+        func_param_names = self.func.__code__.co_varnames[: self.func.__code__.co_argcount]
+
+        expected_kwargs = {k: v for k, v in kwargs.items() if k in func_param_names}
         if self.needs_graph_manager:
-            return self.func(graph_manager, *args, **kwargs)
-        return self.func(*args, **kwargs)
+            return self.func(graph_manager, *args, **expected_kwargs)
+        return self.func(*args, **expected_kwargs)
 
 
 commands: dict[str, Command] = {}
@@ -138,7 +141,8 @@ def parse_command(command: str, graph_manager: GraphManager) -> bool:
     cmd = commands.get(name)
 
     if cmd:
-        command_result = cmd(graph_manager, *args)
+        flags_kwargs = {flag: True for flag in flags}
+        command_result = cmd(graph_manager, *args, **flags_kwargs)
         return bool(command_result)  # Whether to exit the console or not
     else:
         # Unknown command
@@ -203,24 +207,40 @@ def tree_cmd(graph_manager: GraphManager, root: str) -> bool:
     description="Calculates and prints routing table using link-state routing algorithm.",
     flags={"i": "Runs iteratively."},
 )
-def ls_cmd(graph_manager: GraphManager, node: str) -> bool:
-    # iterative = False
-    # if "i" in flags:
-    #     iterative = True
+def ls_cmd(graph_manager: GraphManager, node: str, i = False) -> bool:
     link_state_routing_alg = LinkStateRouting(graph_manager)
-    link_state_routing_alg.run(node)
+    link_state_routing_alg.run(node, iterative=i)
     return False
 
 
 @add_command(
     "dv",
-    usage="dv (node) [-i]",
+    usage="dv (node) [-i] [-r]",
     description="Calculates and prints routing table using distance-vector routing algorithm.",
-    flags={"i": "Runs iteratively."},
+    flags={"i": "Runs iteratively.", "r": "Resets the distance vectors"},
 )
-def dv_cmd(graph_manager: GraphManager, node: str) -> bool:
+def dv_cmd(graph_manager: GraphManager, node: str, i=False, r=False) -> bool:
+    if r:
+        graph_manager.dvs = {}
+        graph_manager.changes = {}
+        graph_manager.graphs = {}
     distance_vector_routing_alg = DistanceVectorRouting(graph_manager)
-    distance_vector_routing_alg.run(node)
+    distance_vector_routing_alg.run(node, iterative=i)
+    return False
+
+@add_command(
+    "dls",
+    usage="dv (node) [-i] [-r]",
+    description="Calculates and prints routing table using distributed link-state routing algorithm.",
+    flags={"i": "Runs iteratively.", "r": "Resets the distance vectors"},
+)
+def dls_cmd(graph_manager: GraphManager, node: str, i=False, r=False) -> bool:
+    if r:
+        graph_manager.dvs = {}
+        graph_manager.changes = {}
+        graph_manager.graphs = {}
+    distributed_link_state_routing_alg = DistributredLinkStateRouting(graph_manager)
+    distributed_link_state_routing_alg.run(node, iterative=i)
     return False
 
 

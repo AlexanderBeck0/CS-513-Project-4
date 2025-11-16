@@ -1,5 +1,5 @@
 from graph_manager import GraphManager
-from routing import LinkStateRouting, DistanceVectorRouting
+from routing import LinkStateRouting, DistanceVectorRouting, DistributredLinkStateRouting
 
 def main():
     manager = GraphManager()
@@ -26,6 +26,10 @@ def main():
     print("\nRunning Distance-Vector routing from A:")
     dv = DistanceVectorRouting(manager)
     dv.run("A")
+
+    print("\nRunning Distributed Link-State routing from A:")
+    dls = DistributredLinkStateRouting(manager)
+    dls.run("A")
 
 
 if __name__ == "__main__":

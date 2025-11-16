@@ -4,7 +4,6 @@ from typing import Any
 import networkx as nx
 from graph_manager import GraphManager
 
-
 class RoutingAlgorithm:
     """Base class for routing algorithms."""
 
@@ -13,6 +12,34 @@ class RoutingAlgorithm:
 
     def run(self, source: str, iterative: bool = False):
         raise NotImplementedError("Subclasses must implement this method.")
+
+    @staticmethod
+    def dv_difference(dvs1: dict, dvs2: dict):
+        differences = {}
+        real_diff = {}
+        for key in set(dvs1.keys()) & set(dvs2.keys()):
+            if dvs1[key] != dvs2[key]:
+                differences[key] = (dvs1[key], dvs2[key])
+
+        for k in differences:
+            for key in set(differences[k][0].keys()) & set(differences[k][1].keys()):
+                if differences[k][0][key] != differences[k][1][key]:
+                    real_diff[key] = (differences[k][0][key], differences[k][1][key])
+
+        for k in real_diff:
+            print(f"Key: {k}")
+            print(f"dvs: {real_diff[k][0]}")
+            print(f"dvs_snapshot: {real_diff[k][1]}")
+
+    @staticmethod
+    def dvs_equal(
+        dvs1: dict[str, dict[str, int]], dvs2: dict[str, dict[str, int]]
+    ) -> bool:
+        # Compares the equality of two dvs's.
+        # This function is literally a waste of space but whatever
+        # Could be handy to keep in case we decide to change our definition of equal
+        # (i.e. not require node names to be equal)
+        return dvs1 == dvs2
 
 
 class LinkStateRouting(RoutingAlgorithm):
@@ -91,7 +118,7 @@ def average_shortest_path(graph: nx.Graph) -> tuple[str, str, float, dict[str, f
     return max_node, min_node, avg_len, dijkstra_len
 
 
-class DistanceVectorRouting(RoutingAlgorithm):
+class DistributredLinkStateRouting(RoutingAlgorithm):
     """Implements the Distance Vector Routing Algorithm."""
 
     def __init__(self, graph_manager: GraphManager):
@@ -140,30 +167,54 @@ class DistanceVectorRouting(RoutingAlgorithm):
                 "The Distance Vector Routing Algorithm has converged! Any future use of the dv command with the same graph will not change the output."
             )
 
-    @staticmethod
-    def dv_difference(dvs1: dict, dvs2: dict):
-        differences = {}
-        real_diff = {}
-        for key in set(dvs1.keys()) & set(dvs2.keys()):
-            if dvs1[key] != dvs2[key]:
-                differences[key] = (dvs1[key], dvs2[key])
+class DistanceVectorRouting(RoutingAlgorithm):
+    """Implements the Distance Vector Routing Algorithm."""
 
-        for k in differences:
-            for key in set(differences[k][0].keys()) & set(differences[k][1].keys()):
-                if differences[k][0][key] != differences[k][1][key]:
-                    real_diff[key] = (differences[k][0][key], differences[k][1][key])
+    def __init__(self, graph_manager: GraphManager):
+        super().__init__(graph_manager)
 
-        for k in real_diff:
-            print(f"Key: {k}")
-            print(f"dvs: {real_diff[k][0]}")
-            print(f"dvs_snapshot: {real_diff[k][1]}")
+    def run(self, source: str, iterative: bool = False):
+        # Create a table DP of size nxn
+        # Set DP[v][0] to ∞ for all v ≠ s
+        graph = self.graph_manager.graph
+        dvs = self.graph_manager.dvs
+        
+        for node in graph.nodes:
+            if node not in dvs:
+                dvs[node] = {}
 
-    @staticmethod
-    def dvs_equal(
-        dvs1: dict[str, dict[str, int]], dvs2: dict[str, dict[str, int]]
-    ) -> bool:
-        # Compares the equality of two dvs's.
-        # This function is literally a waste of space but whatever
-        # Could be handy to keep in case we decide to change our definition of equal
-        # (i.e. not require node names to be equal)
-        return dvs1 == dvs2
+            dvs[node][node] = 0  # self-distance = 0
+
+            # set direct neighors costs
+            # for neighbor, attrs in graph[node].items():
+            #     dvs[node][neighbor] = attrs["weight"]
+                
+        dvs_snapshot = deepcopy(dvs)
+        for node1 in graph.nodes:
+            for node2 in graph.nodes:
+                if node1 == node2:
+                    continue
+
+                min_cost = float("inf")
+                for v, attrs in graph[node1].items():  # for each neighbor v of x
+                    # A vertex v lies on a shortest path between vertices s, t iff
+                    # d_G(x, y) = d_G(x,v) + d_G(v, y)
+                    cost_xv = attrs["weight"]
+                    cost_vy = dvs[v].get(node2, float("inf"))
+                    min_cost = min(min_cost, cost_xv + cost_vy)
+
+                dvs[node1][node2] = min_cost
+                if dvs[node1][node2] == float("inf"):
+                    dvs[node1].pop(node2)
+        
+        print(dvs[source])
+        if DistanceVectorRouting.dvs_equal(dvs1=dvs, dvs2=dvs_snapshot):
+            print(
+                "The Distance Vector Routing Algorithm has converged! Any future use of the dv command with the same graph will not change the output."
+            )
+
+        # set DP[v][0] = 0
+        # For i = 1 to n - 1, for all v ∈ V:
+        #   # Set DP[v][i] = min(DP[v][i-1], min(DP[u][i-1] + w(u, v)))
+
+    
