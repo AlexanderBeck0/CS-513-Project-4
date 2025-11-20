@@ -126,7 +126,6 @@ def parse_command(command: str, graph_manager: GraphManager) -> bool:
         return False
 
     name = split_command[0].lower()
-    # args = split_command[1:]
     args = []
     flags = set()
 
@@ -137,7 +136,6 @@ def parse_command(command: str, graph_manager: GraphManager) -> bool:
         else:
             args.append(part)
 
-    # TODO: Add flag support
     cmd = commands.get(name)
 
     if cmd:
