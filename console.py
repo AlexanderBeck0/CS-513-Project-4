@@ -227,7 +227,6 @@ def ls_cmd(graph_manager: GraphManager, node: str = "") -> bool:
 def dv_cmd(graph_manager: GraphManager, node: str = "", i=False, r=False) -> bool:
     if r:
         graph_manager.dvs = {}
-        graph_manager.changes = {}
         graph_manager.graphs = {}
         print("Reset distance vectors.")
         if node == "":
@@ -248,7 +247,6 @@ def dv_cmd(graph_manager: GraphManager, node: str = "", i=False, r=False) -> boo
 def dls_cmd(graph_manager: GraphManager, node: str = "", i=False, r=False) -> bool:
     if r:
         graph_manager.dvs = {}
-        graph_manager.changes = {}
         graph_manager.graphs = {}
         print("Reset distance vectors.")
         if node == "":

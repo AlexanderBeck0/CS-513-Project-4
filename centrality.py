@@ -22,7 +22,7 @@ def brandes_centrality(graph_manager: GraphManager) -> dict[str, float]:
         dist[s] = 0
 
         # Since Dijkstra is already implemented in this project, I'm not going to reimplement it
-        dijkstra_results = dijkstra(s, graph, iterative=False)
+        dijkstra_results = dijkstra(s, graph)
 
         # Build dist and predecessors
         # Not as efficient as if Dijkstra was built for this task (like in algorithm in paper)

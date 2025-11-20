@@ -2,7 +2,6 @@ import heapq
 from copy import deepcopy
 from typing import Any
 import networkx as nx
-import numpy as np
 from graph_manager import GraphManager
 
 class RoutingAlgorithm:
@@ -57,7 +56,7 @@ class LinkStateRouting(RoutingAlgorithm):
         graph = self.graph
         if source not in graph.nodes:
             print(f"Node {source} not found in graph.")
-            return
+            return False
 
         results = dijkstra(source=source, graph=graph)
         print_vias(results, source)
@@ -98,7 +97,7 @@ def dijkstra(
     return results
 
     
-def find_vias(graph: nx.Graph, dvs: dict, prev: dict, source: str):
+def find_vias(graph: nx.Graph, dvs: dict, prev: dict, source: str) -> list[tuple]:
     results = []
     for node in graph.nodes:
         distance = dvs.get(node, float("inf"))
@@ -122,7 +121,7 @@ def print_vias(vias: tuple[float, str, str], source: str) -> None:
 def average_shortest_path(graph: nx.Graph) -> tuple[str, str, float, dict[str, float]]:
     dijkstra_len: dict[str, float] = dict.fromkeys(list(graph.nodes), 0.0)
     for node in graph:
-        results = dijkstra(node, graph, iterative=False)
+        results = dijkstra(node, graph)
         dijkstra_len[node] = sum([result[0] for result in results]) / len(results)
     max_node: str = max(dijkstra_len, key=dijkstra_len.get)  # type: ignore
     min_node: str = min(dijkstra_len, key=dijkstra_len.get)  # type: ignore
@@ -157,7 +156,7 @@ class DistributredLinkStateRouting(RoutingAlgorithm):
         # Check if source node exists
         if source not in graph.nodes:
             print(f"Node {source} not found in graph.")
-            return
+            return False
 
         # Loop through ALL the nodes
         for node in graph.nodes:
