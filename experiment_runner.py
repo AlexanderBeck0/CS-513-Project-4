@@ -1,8 +1,13 @@
 from graph_manager import GraphManager
-from routing import LinkStateRouting, DistanceVectorRouting, DistributredLinkStateRouting
+from routing import (
+    LinkStateRouting,
+    DistanceVectorRouting,
+    DistributredLinkStateRouting,
+)
 from console import file_cmd, parse_command
 import random
 import string
+
 
 def main():
     manager = GraphManager()
@@ -20,7 +25,10 @@ def main():
     dls = DistributredLinkStateRouting(manager)
     dls.run("A")
 
-def generate_random_graph(max_num_nodes: int, edge_prob: float, max_cost: int = 10) -> GraphManager:
+
+def generate_random_graph(
+    max_num_nodes: int, edge_prob: float, max_cost: int = 10
+) -> GraphManager:
     manager = GraphManager()
     # num_nodes = random.randint(3, max_num_nodes)
     num_nodes = max_num_nodes
@@ -32,17 +40,21 @@ def generate_random_graph(max_num_nodes: int, edge_prob: float, max_cost: int = 
                 manager.add_edge(nodes[i], nodes[j], cost)
     return manager
 
+
 def get_parse_wrapper(manager: GraphManager):
     return lambda cmd: parse_command(cmd, manager)
+
 
 def parse_factory():
     manager = GraphManager()
     parse = get_parse_wrapper(manager)
     return parse, manager
 
+
 def print_header(header: str, sep: str = "-", num_sep: int = 5):
-    print("\n" + sep*5 + header + sep*5)
-    
+    print("\n" + sep * 5 + header + sep * 5)
+
+
 def changing_cost_dv():
     print_header("Chaning Cost DV", num_sep=6)
     parse, manager = parse_factory()
@@ -60,8 +72,11 @@ def changing_cost_dv():
 
     print_header("Changing C J 1 -> C J ")
     print("(Should make shortest path from A -> J be 9 instead of 4)")
-    parse("C J 999", )
+    parse(
+        "C J 999",
+    )
     parse("dv A")
+
 
 def time_to_converge():
     print_header("Time to Converge", num_sep=6)
@@ -69,23 +84,24 @@ def time_to_converge():
     file_cmd(manager, "figure1.in")
     parse("dv A")
     parse("dls A -r")
-    
+
+
 def simple_run():
     print_header("Simple Run", num_sep=6)
     parse, _ = parse_factory()
     print_header("Adding Edges")
     parse("A D 5")
     parse("D F 2")
-    parse("A B 2")    
+    parse("A B 2")
     parse("A E 6")
-    parse("D E 4")    
+    parse("D E 4")
     parse("E F 1")
-    parse("F G 7")    
+    parse("F G 7")
     parse("B C 1")
-    parse("C E 3")    
+    parse("C E 3")
     parse("C H 1")
     parse("G H 3")
-    parse("H I 2")    
+    parse("H I 2")
     parse("I J 4")
     parse("G J 5")
     parse("plot")
@@ -93,7 +109,7 @@ def simple_run():
     print_header("Running Link-State routing from A:")
     parse("ls A")
     parse("tree A")
-    
+
     print_header("Removing Edges")
     parse("A D -")
     parse("D F -")
@@ -103,8 +119,6 @@ def simple_run():
     print_header("Running Distance-Vector routing after removing edges:")
     parse("dv A")
     parse("tree A")
-
-    
 
 
 def count_to_infinity():

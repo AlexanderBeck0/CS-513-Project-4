@@ -4,13 +4,14 @@ from typing import Any
 import networkx as nx
 from graph_manager import GraphManager
 
+
 class RoutingAlgorithm:
     """Base class for routing algorithms."""
 
     def __init__(self, graph_manager: GraphManager):
         self.graph_manager = graph_manager
 
-    def run(self, source: str, iterative: bool = False) -> bool:
+    def run(self, source: str, iterative: bool = False) -> int:
         raise NotImplementedError("Subclasses must implement this method.")
 
     @staticmethod
@@ -50,24 +51,21 @@ class LinkStateRouting(RoutingAlgorithm):
 
         self.graph = graph if graph is not None else graph_manager.graph
 
-    def run(self, source: str, iterative=False) -> bool:
+    def run(self, source: str, iterative=False) -> int:
         # Ignore iterative but keep it for inheritence
 
         graph = self.graph
         if source not in graph.nodes:
             print(f"Node {source} not found in graph.")
-            return False
+            return 0
 
         results = dijkstra(source=source, graph=graph)
         print_vias(results, source)
 
-        return True
+        return 1
 
 
-
-def dijkstra(
-    source: str, graph: nx.Graph
-) -> list[tuple[float, str, str]]:
+def dijkstra(source: str, graph: nx.Graph) -> list[tuple[float, str, str]]:
     """Runs Dijkstra and returns a list of tuples (distance, node, via). If iterative is True, will run it iteratively
 
     Returns:
@@ -92,11 +90,11 @@ def dijkstra(
                 dist[neighbor] = new_dist
                 prev[neighbor] = current_node
                 heapq.heappush(pq, (new_dist, neighbor))
-    
+
     results = find_vias(graph, dist, prev, source)
     return results
 
-    
+
 def find_vias(graph: nx.Graph, dvs: dict, prev: dict, source: str) -> list[tuple]:
     results = []
     for node in graph.nodes:
@@ -113,11 +111,13 @@ def find_vias(graph: nx.Graph, dvs: dict, prev: dict, source: str) -> list[tuple
     results.sort(key=lambda x: x[0])
     return results
 
+
 def print_vias(vias: tuple[float, str, str], source: str) -> None:
     print(f"\nRouting Table for node {source} (Sorted by Cost):")
     for distance, node, via in vias:
         print(f"{node} <- {via} ({distance})")
-    
+
+
 def average_shortest_path(graph: nx.Graph) -> tuple[str, str, float, dict[str, float]]:
     dijkstra_len: dict[str, float] = dict.fromkeys(list(graph.nodes), 0.0)
     for node in graph:
@@ -135,25 +135,30 @@ class DistributredLinkStateRouting(RoutingAlgorithm):
     def __init__(self, graph_manager: GraphManager):
         super().__init__(graph_manager)
 
-    def run(self, source: str, iterative: bool = False) -> bool:
+    def run(self, source: str, iterative: bool = False) -> int:
         # Check if source node exists
         if source not in self.graph_manager.graph.nodes:
             print(f"Node {source} not found in graph.")
             return False
-        
+
         if iterative:
-            # Run iteratively 
-            return self.run_iterative(source)
+            # Run iteratively
+            self.run_iterative(source)
+            return 1
         else:
             # Run until completion
             run_count = 0
             while not self.run_iterative(source):
                 run_count += 1
                 if run_count == 10:
-                    print("Distributed Link State Routing Algorithm ran 10 times and did not converge. Stopping.")
-                    return False
-            print(f"Distributed Link State Routing algorithm converged after {run_count + 1} runs")
-            return True
+                    print(
+                        "Distributed Link State Routing Algorithm ran 10 times and did not converge. Stopping."
+                    )
+                    return run_count + 1
+            print(
+                f"Distributed Link State Routing algorithm converged after {run_count + 1} runs"
+            )
+            return run_count + 1
 
     def run_iterative(self, source: str) -> bool:
         graphs = self.graph_manager.graphs  # Distributed graphs
@@ -199,36 +204,42 @@ class DistributredLinkStateRouting(RoutingAlgorithm):
             return True
         return False
 
+
 class DistanceVectorRouting(RoutingAlgorithm):
     """Implements the Distance Vector Routing Algorithm."""
 
     def __init__(self, graph_manager: GraphManager):
         super().__init__(graph_manager)
 
-    def run(self, source: str, iterative: bool = False):
+    def run(self, source: str, iterative: bool = False) -> int:
         # Check if source node exists
         if source not in self.graph_manager.graph.nodes:
             print(f"Node {source} not found in graph.")
             return False
         if iterative:
-            # Run iteratively 
-            return self.run_iterative(source)
+            # Run iteratively
+            self.run_iterative(source)
+            return 1
         else:
             # Run until completion
             run_count = 0
             while not self.run_iterative(source):
                 run_count += 1
                 if run_count == 10:
-                    print("Distance Vector Routing Algorithm ran 10 times and did not converge. Stopping.")
-                    return False
-            print(f"Distance Vector Routing algorithm converged after {run_count + 1} runs")
-            return True
+                    print(
+                        "Distance Vector Routing Algorithm ran 10 times and did not converge. Stopping."
+                    )
+                    return run_count + 1
+            print(
+                f"Distance Vector Routing algorithm converged after {run_count + 1} runs"
+            )
+            return run_count + 1
 
     def run_iterative(self, source: str) -> bool:
         graph = self.graph_manager.graph
         dvs = self.graph_manager.dvs
         prev: dict[Any, None | str] = {node: None for node in graph.nodes}
-        
+
         for node in graph.nodes:
             if node not in dvs:
                 dvs[node] = {}
@@ -239,7 +250,7 @@ class DistanceVectorRouting(RoutingAlgorithm):
             # set direct neighors costs
             # for neighbor, attrs in graph[node].items():
             #     dvs[node][neighbor] = attrs["weight"]
-                
+
         dvs_snapshot = deepcopy(dvs)
         for node1 in graph.nodes:
             for node2 in graph.nodes:
@@ -256,13 +267,13 @@ class DistanceVectorRouting(RoutingAlgorithm):
                     min_cost = min(min_cost, cost_xv + cost_vy)
                     if min_cost == cost_xv + cost_vy:
                         min_node = v
-                
+
                 if min_node is not None:
                     prev[min_node] = node1
                 dvs[node1][node2] = min_cost
                 if dvs[node1][node2] == float("inf"):
                     dvs[node1].pop(node2)
-        
+
         vias = find_vias(graph, dvs[source], prev, source)
         print_vias(vias, source)
         if DistanceVectorRouting.dvs_equal(dvs1=dvs, dvs2=dvs_snapshot):

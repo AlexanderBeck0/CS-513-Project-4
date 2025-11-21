@@ -36,13 +36,14 @@ Calculates and prints routing table using link-state routing algorithm.
 
 #### dls
 
-Usage: `dls (node) [-i]`
+Usage: `dls (node) [-i] [-r]`
 
 Runs a distributed Link State routing algorithm that uses graphs. When running non-iteratively, if the distance vector does not converge within 10 runs, the command exits, preventing an infinite loop due to the count-to-infinity problem.
 
 Options:
 
-* `-i`: Runs a distributed link state algorithm iteratively.
+- `-i`: Runs a distributed link state algorithm iteratively.
+- `-r`: Resets the distance vector table and runs from scratch.
 
 #### dv
 
@@ -52,8 +53,8 @@ Calculates and prints routing table using distance-vector routing algorithm. Run
 
 Options:
 
-* `-i`: Runs distance vector algorithm iteratively.
-* `-r`: Resets the distance vector table and runs from scratch.
+- `-i`: Runs distance vector algorithm iteratively.
+- `-r`: Resets the distance vector table and runs from scratch.
 
 ### Other Commands
 

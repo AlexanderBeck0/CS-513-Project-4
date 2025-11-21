@@ -52,9 +52,12 @@ The first algorithm is the link-state routing algorithm, which utilizes Dijkstra
 
 In addition to the routing algorithms, we created several tools for analysis and visualization. For visualization, we created the "plot" and "tree" commands. The "plot" command plots the graph as constructed with the given nodes and costs. The "tree" command which plots a minimum spanning tree with the inputted node as the root node for the network graph (tree A). For analysis, we created the commands "centrality" and "stats". The "centrality" command calculates the betweenness of every node in the graph and prints the nodes with their betweenness, allowing us to see which nodes are most central to the network. The "stats" command prints the node with the maximum, minimum, and average shortest path lengths found in the graph.
 
-## What are the results you obtained? As appropriate, it is important you include sample output demonstrating functionality/results of your project.
+## What are the results you obtained? As appropriate, it is important you include sample output demonstrating functionality/results of your project
 
-TODO
+dense_graph:
+
+  - DV in 8
+  - DLS in 4
 
 ## What went well on the project?
 

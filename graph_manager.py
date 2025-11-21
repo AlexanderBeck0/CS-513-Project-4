@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import os
 
+
 class GraphManager:
     def __init__(self):
         self.graph = nx.Graph()
@@ -79,6 +80,7 @@ class GraphManager:
 
     def tree(self, root: str) -> None:
         from routing import dijkstra
+
         dijkstra_results = dijkstra(root, self.graph)
 
         # Construct graph from dijkstra_results
@@ -93,21 +95,26 @@ class GraphManager:
             if via not in dijkstra_tree.nodes:
                 dijkstra_tree.add_node(via)
             dijkstra_tree.add_edge(via, node, weight=distance)
-        
-        
+
         pos = nx.bfs_layout(dijkstra_tree, start=root)
         weights = nx.get_edge_attributes(dijkstra_tree, "weight")
-        nx.draw(dijkstra_tree, pos, with_labels=True, node_color="skyblue", node_size=1000)
-        nx.draw_networkx_edge_labels(dijkstra_tree, pos, edge_labels=weights, rotate=False)
+        nx.draw(
+            dijkstra_tree, pos, with_labels=True, node_color="skyblue", node_size=1000
+        )
+        nx.draw_networkx_edge_labels(
+            dijkstra_tree, pos, edge_labels=weights, rotate=False
+        )
         plt.title("Spanning Tree")
         plt.show()
 
     def save_to_file(self, filename: str) -> None:
         if os.path.exists(filename):
-            response = input(f"File with name '{filename}' already exists. Replace? (Y/N) ").lower()
+            response = input(
+                f"File with name '{filename}' already exists. Replace? (Y/N) "
+            ).lower()
             if response[0] != "y":
                 return
-            
+
         # Replace the file
         with open(filename, "w") as file:
             for u, v, data in self.graph.edges(data=True):
