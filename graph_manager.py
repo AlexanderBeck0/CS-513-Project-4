@@ -66,10 +66,34 @@ class GraphManager:
         nx.draw_networkx_edge_labels(self.graph, pos, edge_labels=weights, rotate=False)
         plt.title("Network Graph")
         if file_name:
+            directory = os.path.dirname(file_name)
+
+            if directory:
+                os.makedirs(directory, exist_ok=True)
+
+            if os.path.exists(file_name):
+                response = input(
+                    f"File with name '{file_name}' already exists. Replace? (Y/N) "
+                ).lower()
+                if response[0] != "y":
+                    plt.show()
+                    return
             plt.savefig(file_name)
         plt.show()
 
     def save_plot(self, file_name: str) -> None:
+        directory = os.path.dirname(file_name)
+
+        if directory:
+            os.makedirs(directory, exist_ok=True)
+
+        if os.path.exists(file_name):
+            response = input(
+                f"File with name '{file_name}' already exists. Replace? (Y/N) "
+            ).lower()
+            if response[0] != "y":
+                return
+
         # Exact same thing as plot, but doesn't show the plot.
         # In fact, it is DUPLICATE CODE.
         pos = nx.spring_layout(self.graph)
@@ -111,6 +135,11 @@ class GraphManager:
         plt.show()
 
     def save_to_file(self, filename: str) -> None:
+        directory = os.path.dirname(filename)
+
+        if directory:
+            os.makedirs(directory, exist_ok=True)
+
         if os.path.exists(filename):
             response = input(
                 f"File with name '{filename}' already exists. Replace? (Y/N) "

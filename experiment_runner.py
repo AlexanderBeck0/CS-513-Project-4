@@ -28,9 +28,11 @@ def main():
 
 
 def generate_random_graph(
-    max_num_nodes: int, edge_prob: float, max_cost: int = 10
+    max_num_nodes: int, edge_prob: float, max_cost: int = 10, silent: bool = True
 ) -> GraphManager:
     manager = GraphManager()
+    if silent:
+        manager.temp_mute()
     # num_nodes = random.randint(3, max_num_nodes)
     num_nodes = max_num_nodes
     nodes = random.sample(string.ascii_uppercase, num_nodes)
@@ -39,6 +41,8 @@ def generate_random_graph(
             if random.random() < edge_prob:
                 cost = random.randint(1, max_cost)
                 manager.add_edge(nodes[i], nodes[j], cost)
+    if silent:
+        manager.temp_unmute()
     return manager
 
 
@@ -143,10 +147,29 @@ def count_to_infinity():
     parse("dv A -i")
 
 
+def batch_gather_statistics(n=100, save_graphs: bool = False, save_plots: bool = False) -> None:
+    """Generates `n` random graphs and gathers the statistics of them.
+
+    Args:
+        n (int, optional): Number of random graphs to generate. Defaults to 100.
+        save_graphs (bool, optional): Flag for whether the graphs should be saved. Defaults to False.
+        save_plots (bool, optional): Flag for whether the plots should be saved. Defaults to False.
+    """
+    graphs: list[GraphManager] = []
+    for i in range(0, n):
+        graphs.append(generate_random_graph(26, 0.075, 50))
+
+        if save_graphs:
+            graphs[i].save_to_file(f"out/graphs/{i}.in")
+        if save_plots:
+            graphs[i].save_plot(f"out/plots/{i}.png")
+
+
 if __name__ == "__main__":
     # main()
-    randomgraph = generate_random_graph(26, 0.075, 50)
-    randomgraph.save_to_file("random_graph.in")
-    randomgraph.save_plot("random_graph.png")
+    # randomgraph = generate_random_graph(26, 0.075, 50)
+    # randomgraph.save_to_file("random_graph.in")
+    # randomgraph.save_plot("random_graph.png")
+    batch_gather_statistics(1, True, True)
     # Finished
     # count_to_infinity()
