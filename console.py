@@ -7,8 +7,8 @@ from typing import Any
 from graph_manager import GraphManager
 from routing import (
     DistanceVectorRouting,
-    LinkStateRouting,
     DistributredLinkStateRouting,
+    LinkStateRouting,
     RoutingAlgorithm,
     average_shortest_path,
 )
@@ -227,7 +227,6 @@ def ls_cmd(graph_manager: GraphManager, node: str = "") -> bool:
 def dv_cmd(graph_manager: GraphManager, node: str = "", i=False, r=False) -> bool:
     if r:
         graph_manager.dvs = {}
-        graph_manager.graphs = {}
         graph_manager.runs["dv"] = 0
         print("Reset distance vectors.")
 
@@ -253,10 +252,9 @@ def dv_cmd(graph_manager: GraphManager, node: str = "", i=False, r=False) -> boo
 )
 def dls_cmd(graph_manager: GraphManager, node: str = "", i=False, r=False) -> bool:
     if r:
-        graph_manager.dvs = {}
         graph_manager.graphs = {}
         graph_manager.runs["dls"] = 0
-        print("Reset distance vectors.")
+        print("Reset dls graphs.")
 
         # Allow use of dls -r without a node
         if node == "":

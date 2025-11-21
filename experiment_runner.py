@@ -1,12 +1,13 @@
-from graph_manager import GraphManager
-from routing import (
-    LinkStateRouting,
-    DistanceVectorRouting,
-    DistributredLinkStateRouting,
-)
-from console import file_cmd, parse_command
 import random
 import string
+
+from console import file_cmd, parse_command
+from graph_manager import GraphManager
+from routing import (
+    DistanceVectorRouting,
+    DistributredLinkStateRouting,
+    LinkStateRouting,
+)
 
 
 def main():
