@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import networkx as nx
+import os
 
 class GraphManager:
     def __init__(self):
@@ -64,6 +65,18 @@ class GraphManager:
             plt.savefig(file_name)
         plt.show()
 
+    def save_plot(self, file_name: str) -> None:
+        # Exact same thing as plot, but doesn't show the plot.
+        # In fact, it is DUPLICATE CODE.
+        pos = nx.spring_layout(self.graph)
+
+        weights = nx.get_edge_attributes(self.graph, "weight")
+        nx.draw(self.graph, pos, with_labels=True, node_color="skyblue", node_size=1000)
+        nx.draw_networkx_edge_labels(self.graph, pos, edge_labels=weights, rotate=False)
+        plt.title("Network Graph")
+        if file_name:
+            plt.savefig(file_name)
+
     def tree(self, root: str) -> None:
         from routing import dijkstra
         dijkstra_results = dijkstra(root, self.graph)
@@ -88,3 +101,14 @@ class GraphManager:
         nx.draw_networkx_edge_labels(dijkstra_tree, pos, edge_labels=weights, rotate=False)
         plt.title("Spanning Tree")
         plt.show()
+
+    def save_to_file(self, filename: str) -> None:
+        if os.path.exists(filename):
+            response = input(f"File with name '{filename}' already exists. Replace? (Y/N) ").lower()
+            if response[0] != "y":
+                return
+            
+        # Replace the file
+        with open(filename, "w") as file:
+            for u, v, data in self.graph.edges(data=True):
+                file.write(f"{u} {v} {data['weight']}\n")

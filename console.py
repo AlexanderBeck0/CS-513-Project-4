@@ -388,23 +388,4 @@ def on_shutdown(reason: str = "Unknown reason") -> None:
 if __name__ == "__main__":
     # Just create a wrapper of main so that I can click run in VS code without having to switch to another file
     import main
-
-    file_cmd(main.manager, "figure1.in")
-    print("---- #1 -----")
-    dv_cmd(main.manager, "A")
-    print("---- #2 -----")
-    dv_cmd(main.manager, "A")
-    print("---- #3 -----")
-    dv_cmd(main.manager, "A")
-
-    parse_command("A J 9", main.manager)
-    dv_cmd(main.manager, "A")
-
-    parse_command("C J 1", main.manager)
-    dv_cmd(main.manager, "A")
-    dv_cmd(main.manager, "A")
-
-    parse_command("C J 999", main.manager)
-    dv_cmd(main.manager, "A")
-
     main.main()

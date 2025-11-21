@@ -136,6 +136,11 @@ class DistributredLinkStateRouting(RoutingAlgorithm):
         super().__init__(graph_manager)
 
     def run(self, source: str, iterative: bool = False) -> bool:
+        # Check if source node exists
+        if source not in self.graph_manager.graph.nodes:
+            print(f"Node {source} not found in graph.")
+            return False
+        
         if iterative:
             # Run iteratively 
             return self.run_iterative(source)
@@ -147,6 +152,7 @@ class DistributredLinkStateRouting(RoutingAlgorithm):
                 if run_count == 10:
                     print("Distributed Link State Routing Algorithm ran 10 times and did not converge. Stopping.")
                     return False
+            print(f"Distributed Link State Routing algorithm converged after {run_count + 1} runs")
             return True
 
     def run_iterative(self, source: str) -> bool:
@@ -200,6 +206,10 @@ class DistanceVectorRouting(RoutingAlgorithm):
         super().__init__(graph_manager)
 
     def run(self, source: str, iterative: bool = False):
+        # Check if source node exists
+        if source not in self.graph_manager.graph.nodes:
+            print(f"Node {source} not found in graph.")
+            return False
         if iterative:
             # Run iteratively 
             return self.run_iterative(source)
@@ -209,8 +219,9 @@ class DistanceVectorRouting(RoutingAlgorithm):
             while not self.run_iterative(source):
                 run_count += 1
                 if run_count == 10:
-                    print("Distributed Vector Routing Algorithm ran 10 times and did not converge. Stopping.")
+                    print("Distance Vector Routing Algorithm ran 10 times and did not converge. Stopping.")
                     return False
+            print(f"Distance Vector Routing algorithm converged after {run_count + 1} runs")
             return True
 
     def run_iterative(self, source: str) -> bool:
