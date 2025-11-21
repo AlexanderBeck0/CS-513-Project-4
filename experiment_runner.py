@@ -1,5 +1,6 @@
 import random
 import string
+from tqdm import tqdm
 
 from console import file_cmd, parse_command
 from graph_manager import GraphManager
@@ -156,7 +157,7 @@ def batch_gather_statistics(n=100, save_graphs: bool = False, save_plots: bool =
         save_plots (bool, optional): Flag for whether the plots should be saved. Defaults to False.
     """
     graphs: list[GraphManager] = []
-    for i in range(0, n):
+    for i in tqdm(range(0, n)):
         graphs.append(generate_random_graph(26, 0.075, 50))
 
         if save_graphs:
@@ -170,6 +171,6 @@ if __name__ == "__main__":
     # randomgraph = generate_random_graph(26, 0.075, 50)
     # randomgraph.save_to_file("random_graph.in")
     # randomgraph.save_plot("random_graph.png")
-    batch_gather_statistics(1, True, True)
+    batch_gather_statistics(100, True, True)
     # Finished
     # count_to_infinity()
