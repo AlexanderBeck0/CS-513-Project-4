@@ -104,6 +104,10 @@ Used to find the betweenness centrality of the graph.
 
 #### stats
 
-Usage: `stats`
+Usage: `stats [-r]`
 
 Reports the maximum, minimum, and average length of shortest distance paths.
+
+Options:
+
+- `-r`: Resets the statistics saved for the different algorithms.

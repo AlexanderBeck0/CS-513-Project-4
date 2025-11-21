@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import networkx as nx
 import os
+import collections
 
 
 class GraphManager:
@@ -10,6 +11,8 @@ class GraphManager:
         self._verbose_state = (
             self.verbose
         )  # used to store whatever verbose is to reverse the verbose state
+
+        self.runs = {'ls': 0, 'dls': 0, 'dv': 0}
 
         self.dvs: dict[str, dict[str, int]] = {}
 

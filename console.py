@@ -36,7 +36,9 @@ class Command:
         )
 
     def __call__(self, graph_manager=None, *args: Any, **kwargs: Any) -> Any:
-        func_param_names = self.func.__code__.co_varnames[: self.func.__code__.co_argcount]
+        func_param_names = self.func.__code__.co_varnames[
+            : self.func.__code__.co_argcount
+        ]
 
         expected_kwargs = {k: v for k, v in kwargs.items() if k in func_param_names}
         if self.needs_graph_manager:
@@ -205,14 +207,14 @@ def tree_cmd(graph_manager: GraphManager, root: str = "") -> bool:
 @add_command(
     "ls",
     usage="ls (node)",
-    description="Calculates and prints routing table using link-state routing algorithm. Output is read destination <- from (cost)."
+    description="Calculates and prints routing table using link-state routing algorithm. Output is read destination <- from (cost).",
 )
 def ls_cmd(graph_manager: GraphManager, node: str = "") -> bool:
     if node == "":
         print("Usage: ", commands["ls"].usage)
         return False
     link_state_routing_alg = LinkStateRouting(graph_manager)
-    link_state_routing_alg.run(node)
+    graph_manager.runs["ls"] += link_state_routing_alg.run(node)
     return False
 
 
@@ -226,15 +228,22 @@ def dv_cmd(graph_manager: GraphManager, node: str = "", i=False, r=False) -> boo
     if r:
         graph_manager.dvs = {}
         graph_manager.graphs = {}
+        graph_manager.runs["dv"] = 0
         print("Reset distance vectors.")
+
+        # Allow use of dv -r without a node
         if node == "":
             return False
+
+    # dv (no other args)
     if node == "" and not r:
         print("Usage: ", commands["dv"].usage)
         return False
+
     distance_vector_routing_alg = DistanceVectorRouting(graph_manager)
-    distance_vector_routing_alg.run(node, iterative=i)
+    graph_manager.runs["dv"] += distance_vector_routing_alg.run(node, iterative=i)
     return False
+
 
 @add_command(
     "dls",
@@ -246,14 +255,22 @@ def dls_cmd(graph_manager: GraphManager, node: str = "", i=False, r=False) -> bo
     if r:
         graph_manager.dvs = {}
         graph_manager.graphs = {}
+        graph_manager.runs["dls"] = 0
         print("Reset distance vectors.")
+
+        # Allow use of dls -r without a node
         if node == "":
             return False
+
+    # dls (no other args)
     if node == "" and not r:
         print("Usage: ", commands["dls"].usage)
         return False
+
     distributed_link_state_routing_alg = DistributredLinkStateRouting(graph_manager)
-    distributed_link_state_routing_alg.run(node, iterative=i)
+    graph_manager.runs["dls"] += distributed_link_state_routing_alg.run(
+        node, iterative=i
+    )
     return False
 
 
@@ -335,17 +352,31 @@ def centrality_cmd(graph_manager: GraphManager) -> bool:
 
 @add_command(
     "stats",
-    usage="stats",
+    usage="stats [-r]",
     description="Used to find the max, min, and average shortest path length.",
+    flags={"r": "Resets the statistics saved for the different algorithms."},
 )
-def stats_cmd(graph_manager: GraphManager) -> bool:
+def stats_cmd(graph_manager: GraphManager, r=False) -> bool:
+    if r:
+        for k in graph_manager.runs.keys():
+            graph_manager.runs[k] = 0
+        print("Reset all algorithm statistics.")
+
     # TODO: Make this take a node as input and give stats of that node
     max_node, min_node, avg_len, dijkstra_len = average_shortest_path(
         graph_manager.graph
     )
-    print(f"Node with max shortest path length: {max_node} ({dijkstra_len[max_node]:.2f})")
-    print(f"Node with min shortest path length: {min_node} ({dijkstra_len[min_node]:.2f})")
+    print(
+        f"Node with max shortest path length: {max_node} ({dijkstra_len[max_node]:.2f})"
+    )
+    print(
+        f"Node with min shortest path length: {min_node} ({dijkstra_len[min_node]:.2f})"
+    )
     print(f"Average shortest path length: {avg_len}")
+
+    print("\nAlgorithm Runs:")
+    for algorithm, runs in graph_manager.runs.items():
+        print(algorithm.upper(), f": {runs} run{'s' if runs != 1 else ''}")
     return False
 
 
@@ -388,4 +419,6 @@ def on_shutdown(reason: str = "Unknown reason") -> None:
 if __name__ == "__main__":
     # Just create a wrapper of main so that I can click run in VS code without having to switch to another file
     import main
+
+    parse_command("file figure1.in", main.manager)
     main.main()
