@@ -156,7 +156,7 @@ class DistributredLinkStateRouting(RoutingAlgorithm):
                     )
                     return run_count + 1
             print(
-                f"Distributed Link State Routing algorithm converged after {run_count + 1} runs"
+                f"Distributed Link State Routing algorithm converged after {run_count + 1} run{'s' if run_count != 1 else ''}"
             )
             return run_count + 1
 
@@ -231,7 +231,7 @@ class DistanceVectorRouting(RoutingAlgorithm):
                     )
                     return run_count + 1
             print(
-                f"Distance Vector Routing algorithm converged after {run_count + 1} runs"
+                f"Distance Vector Routing algorithm converged after {run_count + 1} run{'s' if run_count + 1 != 1 else ''}"
             )
             return run_count + 1
 
