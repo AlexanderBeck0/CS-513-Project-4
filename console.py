@@ -214,7 +214,7 @@ def ls_cmd(graph_manager: GraphManager, node: str = "") -> bool:
         print("Usage: ", commands["ls"].usage)
         return False
     link_state_routing_alg = LinkStateRouting(graph_manager)
-    graph_manager.runs["ls"] += link_state_routing_alg.run(node)
+    link_state_routing_alg.run(node)
     return False
 
 

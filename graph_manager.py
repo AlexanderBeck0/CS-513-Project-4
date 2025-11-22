@@ -12,7 +12,7 @@ class GraphManager:
             self.verbose
         )  # used to store whatever verbose is to reverse the verbose state
 
-        self.runs = {"ls": 0, "dls": 0, "dv": 0}
+        self.runs = {"dls": 0, "dv": 0}
 
         self.dvs: dict[str, dict[str, int]] = {}
 
@@ -81,18 +81,19 @@ class GraphManager:
             plt.savefig(file_name)
         plt.show()
 
-    def save_plot(self, file_name: str) -> None:
+    def save_plot(self, file_name: str, overwrite: bool = False) -> None:
         directory = os.path.dirname(file_name)
 
         if directory:
             os.makedirs(directory, exist_ok=True)
 
         if os.path.exists(file_name):
-            response = input(
-                f"File with name '{file_name}' already exists. Replace? (Y/N) "
-            ).lower()
-            if response[0] != "y":
-                return
+            if not overwrite:
+                response = input(
+                    f"File with name '{file_name}' already exists. Replace? (Y/N) "
+                ).lower()
+                if response[0] != "y":
+                    return
 
         # Exact same thing as plot, but doesn't show the plot.
         # In fact, it is DUPLICATE CODE.
@@ -104,6 +105,7 @@ class GraphManager:
         plt.title("Network Graph")
         if file_name:
             plt.savefig(file_name)
+            plt.close()
 
     def tree(self, root: str) -> None:
         from routing import dijkstra
@@ -134,18 +136,19 @@ class GraphManager:
         plt.title("Spanning Tree")
         plt.show()
 
-    def save_to_file(self, filename: str) -> None:
+    def save_to_file(self, filename: str, overwrite: bool = False) -> None:
         directory = os.path.dirname(filename)
 
         if directory:
             os.makedirs(directory, exist_ok=True)
 
         if os.path.exists(filename):
-            response = input(
-                f"File with name '{filename}' already exists. Replace? (Y/N) "
-            ).lower()
-            if response[0] != "y":
-                return
+            if not overwrite:
+                response = input(
+                    f"File with name '{filename}' already exists. Replace? (Y/N) "
+                ).lower()
+                if response[0] != "y":
+                    return
 
         # Replace the file
         with open(filename, "w") as file:

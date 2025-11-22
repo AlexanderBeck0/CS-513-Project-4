@@ -1,13 +1,19 @@
 import random
 import string
 from tqdm import tqdm
+import sys
+import os
+import pandas as pd
+import matplotlib.pyplot as plt
 
 from console import file_cmd, parse_command
 from graph_manager import GraphManager
+import seaborn as sns
 from routing import (
     DistanceVectorRouting,
     DistributredLinkStateRouting,
     LinkStateRouting,
+    average_shortest_path
 )
 
 
@@ -157,15 +163,94 @@ def batch_gather_statistics(n=100, save_graphs: bool = False, save_plots: bool =
         save_plots (bool, optional): Flag for whether the plots should be saved. Defaults to False.
     """
     graphs: list[GraphManager] = []
+    print("Generating graphs...")
     for i in tqdm(range(0, n)):
-        graphs.append(generate_random_graph(26, 0.075, 50))
-
+        graphs.append(generate_random_graph(26, 0.08, 50))
         if save_graphs:
-            graphs[i].save_to_file(f"out/graphs/{i}.in")
+            graphs[i].save_to_file(f"out/graphs/{i}.in", overwrite=True)
         if save_plots:
-            graphs[i].save_plot(f"out/plots/{i}.png")
+            graphs[i].save_plot(f"out/plots/{i}.png", overwrite=True)
 
+    print("Running DV on all graphs...")
+    for i in tqdm(range(0, n)):
+        # Silence the output of dv
+        original_stdout = sys.stdout
+        try:
+            sys.stdout = open(os.devnull, 'w')
+            parse = get_parse_wrapper(graphs[i])
+            parse("dv " + random.choice(list(graphs[i].graph.nodes)))
+        finally:
+            sys.stdout = original_stdout
 
+    print("Running DLS on all graphs...")
+    for i in tqdm(range(0, n)):
+        # Silence the output of dv
+        original_stdout = sys.stdout
+        try:
+            sys.stdout = open(os.devnull, 'w')
+            parse = get_parse_wrapper(graphs[i])
+            parse("dls " + random.choice(list(graphs[i].graph.nodes)))
+        finally:
+            sys.stdout = original_stdout
+
+    print("Running ls on all graphs...")
+    for i in tqdm(range(0, n)):
+        # Silence the output of dv
+        original_stdout = sys.stdout
+        try:
+            sys.stdout = open(os.devnull, 'w')
+            parse = get_parse_wrapper(graphs[i])
+            parse("ls " + random.choice(list(graphs[i].graph.nodes)))
+        finally:
+            sys.stdout = original_stdout
+    
+    # Get all the statistics of all the graphs
+    rows = []
+
+    for i in tqdm(range(0, n)):
+        graph_manager = graphs[i]
+        max_node, min_node, avg_len, dijkstra_len = average_shortest_path(
+            graph_manager.graph
+        )
+
+        rows.append({
+            "max_sp": dijkstra_len[max_node],
+            "min_sp": dijkstra_len[min_node],
+            "avg_sp": avg_len,
+            **graph_manager.runs,
+        })
+
+    df = pd.DataFrame(rows)
+    print(df)
+    
+    # Calculate correlation matrix
+    correlation_matrix = df.corr()
+    print("\nCorrelation Matrix:")
+    print(correlation_matrix)
+    
+    # Corr heatmap     
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(correlation_matrix, annot=True, cmap="coolwarm", center=0, 
+                square=True, linewidths=1)
+    plt.title("Correlation Matrix of Graph Statistics")
+    plt.tight_layout()
+    plt.savefig("out/correlation_heatmap.png", dpi=300)
+    plt.show()
+    
+    # Create scatter plots for top correlations
+    for col1 in df.columns:
+        for col2 in df.columns:
+            if col1 < col2:
+                plt.figure(figsize=(8, 6))
+                plt.scatter(df[col1], df[col2], alpha=0.6)
+                plt.xlabel(col1)
+                plt.ylabel(col2)
+                plt.title(f'{col1} vs {col2}')
+                plt.tight_layout()
+                plt.savefig(f'out/scatter_{col1}_vs_{col2}.png', dpi=300)
+                plt.close()
+
+            
 if __name__ == "__main__":
     # main()
     # randomgraph = generate_random_graph(26, 0.075, 50)
