@@ -163,12 +163,24 @@ The collected statistics from each graph for correlation were:
 - max_sp: The maximum shortest path length
 - min_sp: The minimum shortest path length
 - avg_sp: The average shortest path length
-- nodes: The number of nodes on the graph
+- nodes: The number of nodes in the graph
+- edges: The number of edges in the graph
+- edge_ratio: The ratio of the number of edges to nodes
+- node_ratio: The ratio of the number of nodes to edges
 - edge_cost: The probability of that two nodes share an edge
 - max_cost: The maximum allowed edge cost
 - max_b_cent: The maximum betweenness centrality of the nodes
 - mean_b_cent: The average betweenness centrality of the nodes
 
+The heat map can be found of all the correlated items [here](../figures/correlation_heatmap.png).
+
+Regarding the link state algorithm, it is most strongly corelated with the number of edges and the edge ratio, but is also corelated with the number of nodes and the average shortest path. This is to be expected as all routing algorithms benefit from shorter paths. It is also negatively corelated to the node ratio, which is to be expected as a more sparse graph is quicker to process. Additionally, as the number of nodes and edges increases, it has more to search over, increasing the runtime. It is also strongly corelated to the runtime for the other algirthms, interestingly equally so.
+
+Regarding the distributed link state algorithm, it has approximately the same corelations as the link state algorithm. This is to be expected as it effectively is the link state algorithm but prefaced by a means of gaining the graph knowlege in a distributed fashion.
+
+Regarding the distance vector algorithm, it has very similar corelations to the other two. Interestingly, it has stronger overall corelations to the collected statistics. This primarily includes the number of edges, edge ratio, number of nodes (which was almost doubly corelated), along with the average and max sp. This was very surprising, but we hypothesize this is due to the algorithm being more reliant on the structure of the graph itself as the knowlege is shared neighbor to neighbor.
+
+Additionally, the node ratio is the only captured metric that is strongly negatively corelated. It is corelated to all tested algorithms along with the edge probability, edge ratio, number of edges, and the average and max shortest paths. There are also some interesting connections between the shortest paths and the edges. It seems there is a very strong corelation between the max and average shortest paths with the number of edges and edge ratios. We would expect there would be a negative corelation here, as the having more edges would result in there being more potential shortcuts that can be taken, but that is not what is seen here, which is very interesting. Similarly, we would expect the number of edges and edge ratio to especially impact the distance vector algorithm with a negative corelation as the more edges you have, the faster knowlege can spread and the shorter the runtime should be. Potentially, the cause of this is updating the nodes' routing tables in an oscillatory fashion as they get data regarding each other from several different sources.
 
 ## What went well on the project?
 

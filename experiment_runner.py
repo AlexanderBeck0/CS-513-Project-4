@@ -231,6 +231,9 @@ def batch_gather_statistics(n=100, save_graphs: bool = False, save_plots: bool =
             graph_manager.graph
         )
         num_nodes = graphs[i].graph.number_of_nodes()
+        num_edges = graphs[i].graph.number_of_edges()
+        edge_ratio = num_edges / num_nodes
+        node_ratio = (num_nodes / num_edges) if num_edges != 0 else 0
         centrality = centralities[i]
         max_centrality = max(centrality.values())
         mean_centrality = sum(centrality.values())/len(centrality)
@@ -240,6 +243,9 @@ def batch_gather_statistics(n=100, save_graphs: bool = False, save_plots: bool =
             "min_sp": dijkstra_len[min_node],
             "avg_sp": avg_len,
             "nodes": num_nodes,
+            "edges": num_edges,
+            "edge_ratio": edge_ratio,
+            "node_ratio": node_ratio,
             "edge_prob": edge_probs[i],
             "max_cost": max_costs[i],
             "max_b_cent": max_centrality,
@@ -261,14 +267,13 @@ def batch_gather_statistics(n=100, save_graphs: bool = False, save_plots: bool =
         os.makedirs(directory, exist_ok=True)
 
     # Corr heatmap     
-    plt.figure(figsize=(8, 6))
+    plt.figure(figsize=(12, 10))
     sns.heatmap(correlation_matrix, annot=True, cmap="coolwarm", center=0, 
                 square=True, linewidths=1)
     plt.title("Correlation Matrix of Graph Statistics")
     plt.tight_layout()
     plt.savefig("out/correlation_heatmap.png", dpi=300)
     # plt.show()
-    
     directory = os.path.dirname("out/pairplots/_")
 
     if directory:
@@ -277,7 +282,7 @@ def batch_gather_statistics(n=100, save_graphs: bool = False, save_plots: bool =
     for col1 in df.columns:
         for col2 in df.columns:
             if col1 < col2:
-                plt.figure(figsize=(8, 6))
+                plt.figure(figsize=(12, 10))
                 plt.scatter(df[col1], df[col2], alpha=0.6)
                 plt.xlabel(col1)
                 plt.ylabel(col2)
