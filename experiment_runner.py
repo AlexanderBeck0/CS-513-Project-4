@@ -45,6 +45,8 @@ def generate_random_graph(
     edge_prob = random.uniform(0.01, max_edge_prob)
     max_cost = random.randint(1, max_max_cost)
     # num_nodes = max_num_nodes
+    # edge_prob = max_edge_prob
+    # max_cost = max_max_cost
     nodes = random.sample(string.ascii_uppercase, num_nodes)
     for i in range(num_nodes):
         manager.graph.add_node(nodes[i])
@@ -100,6 +102,7 @@ def time_to_converge():
     file_cmd(manager, "figure1.in")
     parse("dv A")
     parse("dls A -r")
+    parse("ls A -r")
 
 
 def simple_run():
@@ -289,5 +292,10 @@ if __name__ == "__main__":
     # randomgraph.save_to_file("random_graph.in")
     # randomgraph.save_plot("random_graph.png")
     batch_gather_statistics(10000, False, False)
+    # randomgraph, _, _ = generate_random_graph(26, 1, 1)
+    # parse = get_parse_wrapper(randomgraph)
+    # parse("ls A -r")
+    # parse("dv A -r")
+    # parse("dls A -r")
     # Finished
     # count_to_infinity()
