@@ -5,6 +5,7 @@ import sys
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
+from centrality import brandes_centrality
 
 from console import file_cmd, parse_command
 from graph_manager import GraphManager
@@ -35,22 +36,25 @@ def main():
 
 
 def generate_random_graph(
-    max_num_nodes: int, edge_prob: float, max_cost: int = 10, silent: bool = True
-) -> GraphManager:
+    max_num_nodes: int, max_edge_prob: float, max_max_cost: int = 10, silent: bool = True
+) -> tuple[GraphManager, float, int]:
     manager = GraphManager()
     if silent:
         manager.temp_mute()
-    # num_nodes = random.randint(3, max_num_nodes)
-    num_nodes = max_num_nodes
+    num_nodes = random.randint(3, max_num_nodes)
+    edge_prob = random.uniform(0.01, max_edge_prob)
+    max_cost = random.randint(1, max_max_cost)
+    # num_nodes = max_num_nodes
     nodes = random.sample(string.ascii_uppercase, num_nodes)
     for i in range(num_nodes):
+        manager.graph.add_node(nodes[i])
         for j in range(i + 1, num_nodes):
             if random.random() < edge_prob:
                 cost = random.randint(1, max_cost)
                 manager.add_edge(nodes[i], nodes[j], cost)
     if silent:
         manager.temp_unmute()
-    return manager
+    return (manager, edge_prob, max_cost)
 
 
 def get_parse_wrapper(manager: GraphManager):
@@ -163,9 +167,14 @@ def batch_gather_statistics(n=100, save_graphs: bool = False, save_plots: bool =
         save_plots (bool, optional): Flag for whether the plots should be saved. Defaults to False.
     """
     graphs: list[GraphManager] = []
+    edge_probs = []
+    max_costs = []
     print("Generating graphs...")
     for i in tqdm(range(0, n)):
-        graphs.append(generate_random_graph(26, 0.08, 50))
+        gm, edge_prob, max_cost = generate_random_graph(26, 0.1, 50)
+        graphs.append(gm)
+        edge_probs.append(edge_prob)
+        max_costs.append(max_cost)
         if save_graphs:
             graphs[i].save_to_file(f"out/graphs/{i}.in", overwrite=True)
         if save_plots:
@@ -204,7 +213,13 @@ def batch_gather_statistics(n=100, save_graphs: bool = False, save_plots: bool =
         finally:
             sys.stdout = original_stdout
     
+    print("Getting centrality of graphs...")
+    centralities = []
+    for i in tqdm(range(0, n)):
+        centralities.append(brandes_centrality(graphs[i]))
+        
     # Get all the statistics of all the graphs
+    print("Aggregating results...")
     rows = []
 
     for i in tqdm(range(0, n)):
@@ -212,11 +227,20 @@ def batch_gather_statistics(n=100, save_graphs: bool = False, save_plots: bool =
         max_node, min_node, avg_len, dijkstra_len = average_shortest_path(
             graph_manager.graph
         )
+        num_nodes = graphs[i].graph.number_of_nodes()
+        centrality = centralities[i]
+        max_centrality = max(centrality.values())
+        mean_centrality = sum(centrality.values())/len(centrality)
 
         rows.append({
             "max_sp": dijkstra_len[max_node],
             "min_sp": dijkstra_len[min_node],
             "avg_sp": avg_len,
+            "nodes": num_nodes,
+            "edge_prob": edge_probs[i],
+            "max_cost": max_costs[i],
+            "max_b_cent": max_centrality,
+            "mean_b_cent": mean_centrality,
             **graph_manager.runs,
         })
 
@@ -228,6 +252,11 @@ def batch_gather_statistics(n=100, save_graphs: bool = False, save_plots: bool =
     print("\nCorrelation Matrix:")
     print(correlation_matrix)
     
+    directory = os.path.dirname("out/_")
+
+    if directory:
+        os.makedirs(directory, exist_ok=True)
+
     # Corr heatmap     
     plt.figure(figsize=(8, 6))
     sns.heatmap(correlation_matrix, annot=True, cmap="coolwarm", center=0, 
@@ -235,8 +264,12 @@ def batch_gather_statistics(n=100, save_graphs: bool = False, save_plots: bool =
     plt.title("Correlation Matrix of Graph Statistics")
     plt.tight_layout()
     plt.savefig("out/correlation_heatmap.png", dpi=300)
-    plt.show()
+    # plt.show()
     
+    directory = os.path.dirname("out/pairplots/_")
+
+    if directory:
+        os.makedirs(directory, exist_ok=True)
     # Create scatter plots for top correlations
     for col1 in df.columns:
         for col2 in df.columns:
@@ -247,15 +280,14 @@ def batch_gather_statistics(n=100, save_graphs: bool = False, save_plots: bool =
                 plt.ylabel(col2)
                 plt.title(f'{col1} vs {col2}')
                 plt.tight_layout()
-                plt.savefig(f'out/scatter_{col1}_vs_{col2}.png', dpi=300)
+                plt.savefig(f'out/pairplots/scatter_{col1}_vs_{col2}.png', dpi=300)
                 plt.close()
-
             
 if __name__ == "__main__":
     # main()
     # randomgraph = generate_random_graph(26, 0.075, 50)
     # randomgraph.save_to_file("random_graph.in")
     # randomgraph.save_plot("random_graph.png")
-    batch_gather_statistics(100, True, True)
+    batch_gather_statistics(10000, False, False)
     # Finished
     # count_to_infinity()

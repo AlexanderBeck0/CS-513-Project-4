@@ -30,9 +30,14 @@ Typing `X Y {cost}` will update the cost of the edge between `X` and `Y`.
 
 #### ls
 
-Usage: `ls (node)`
+Usage: `ls (node) [-i] [-r]`
 
 Calculates and prints routing table using link-state routing algorithm.
+
+Options:
+
+- `-i`: Runs a link state algorithm iteratively.
+- `-r`: Resets the Dijkstra values and runs from scratch.
 
 #### dls
 
@@ -43,7 +48,7 @@ Runs a distributed Link State routing algorithm that uses graphs. When running n
 Options:
 
 - `-i`: Runs a distributed link state algorithm iteratively.
-- `-r`: Resets the distance vector table and runs from scratch.
+- `-r`: Resets the saved graphs and runs from scratch.
 
 #### dv
 

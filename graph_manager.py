@@ -12,11 +12,13 @@ class GraphManager:
             self.verbose
         )  # used to store whatever verbose is to reverse the verbose state
 
-        self.runs = {"dls": 0, "dv": 0}
+        self.runs = {"ls": 0, "dls": 0, "dv": 0}
 
         self.dvs: dict[str, dict[str, int]] = {}
 
         self.graphs: dict[str, nx.Graph] = {}
+
+        self.ls_state = {}
 
     def temp_mute(self) -> None:
         # Silence the verbosity, while keeping the previous mute state

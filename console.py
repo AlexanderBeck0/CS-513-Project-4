@@ -67,7 +67,6 @@ def add_command(
                 name=name, func=func, usage=usage, description=description, flags=flags
             )
         )
-        # TODO: If func returns None, have it return False (maybe?)
         return func
 
     return decorator
@@ -208,13 +207,23 @@ def tree_cmd(graph_manager: GraphManager, root: str = "") -> bool:
     "ls",
     usage="ls (node)",
     description="Calculates and prints routing table using link-state routing algorithm. Output is read destination <- from (cost).",
+    flags={"i": "Runs iteratively.", "r": "Resets the state of the Dijkstra algorithm."}
 )
-def ls_cmd(graph_manager: GraphManager, node: str = "") -> bool:
+def ls_cmd(graph_manager: GraphManager, node: str = "", i=False, r=False) -> bool:
+    if r:
+        graph_manager.ls_state.clear()
+        graph_manager.runs["ls"] = 0
+        print("Reset Dijkstra states.")
+
+        # Allow use of ls -r without a node
+        if node == "":
+            return False
+
     if node == "":
         print("Usage: ", commands["ls"].usage)
         return False
     link_state_routing_alg = LinkStateRouting(graph_manager)
-    link_state_routing_alg.run(node)
+    graph_manager.runs["ls"] += link_state_routing_alg.run(node, iterative=i)
     return False
 
 
@@ -360,7 +369,6 @@ def stats_cmd(graph_manager: GraphManager, r=False) -> bool:
             graph_manager.runs[k] = 0
         print("Reset all algorithm statistics.")
 
-    # TODO: Make this take a node as input and give stats of that node
     max_node, min_node, avg_len, dijkstra_len = average_shortest_path(
         graph_manager.graph
     )
@@ -387,7 +395,6 @@ def parse_edge(command: str) -> tuple[str, str, int | str] | tuple[None, None, N
     Returns:
         Tuple[str, str, int | str] | Tuple[None, None, None]: The edge (X, Y, cost), (X, Y, -), or (None, None, None) if it failed to parse it.
     """
-    # TODO: Is the cost allowed to be negative? If so, this needs to be rewritten slightly
     graph_input_regex = r"([A-Z]{1})\s([A-Z]{1})\s([\d]+|-)"
     is_edge_command: re.Match[str] | None = re.search(graph_input_regex, command)
     if is_edge_command is None:
@@ -412,11 +419,3 @@ def parse_edge(command: str) -> tuple[str, str, int | str] | tuple[None, None, N
 def on_shutdown(reason: str = "Unknown reason") -> None:
     """(Currently) a stub for if we want a shutdown behavior (like saving the graph state)"""
     print(f"Closing console. Reasoning: {reason}")
-
-
-if __name__ == "__main__":
-    # Just create a wrapper of main so that I can click run in VS code without having to switch to another file
-    import main
-
-    parse_command("file figure1.in", main.manager)
-    main.main()

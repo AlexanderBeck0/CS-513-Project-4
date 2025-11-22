@@ -53,18 +53,89 @@ class LinkStateRouting(RoutingAlgorithm):
 
         self.graph = graph if graph is not None else graph_manager.graph
 
-    def run(self, source: str, iterative=False) -> int:
-        # Ignore iterative but keep it for inheritence
+    def run(self, source: str, iterative: bool = False) -> int:
+        # Check if source node exists
+        if source not in self.graph_manager.graph.nodes:
+            print(f"Node {source} not found in graph.")
+            return False
 
+        state = self.graph_manager.ls_state
+        if "initialized" not in state:
+            state['source'] = source
+            state['dist'] = {node: float("inf") for node in self.graph.nodes}
+            state['prev'] = {node: None for node in self.graph.nodes}
+            state['dist'][source] = 0
+            state['pq'] = [(0, source)]
+            state['initialized'] = True
+
+        if iterative:
+            # Run iteratively
+            self.run_iterative(source, state)
+            return 1
+        else:
+            # Run until completion
+            run_count = 0
+            while not self.run_iterative(source, state):
+                run_count += 1
+                if run_count == 1000:
+                    print(
+                        "Link State Routing Algorithm ran 1000 times and did not converge. Stopping."
+                    )
+                    return run_count + 1
+            print(
+                f"Link State Routing algorithm converged after {run_count + 1} run{'s' if run_count != 1 else ''}"
+            )
+            return run_count + 1
+    
+    def run_iterative(self, source: str, state: dict) -> bool:
         graph = self.graph
         if source not in graph.nodes:
             print(f"Node {source} not found in graph.")
-            return 0
+            return True  # consider finished if source disappears
 
-        results = dijkstra(source=source, graph=graph)
-        print_vias(results, source)
+        pq = state.get('pq', [])
+        dist = state['dist']
+        prev = state['prev']
 
-        return 1
+        # If the heap is empty, finalize using the incremental state and return True
+        if not pq:
+            vias = find_vias(graph, dist, prev, source)
+            print_vias(vias, source)
+            state.clear()
+            return True
+
+        # Pop until we find a non-stale entry or run out
+        while pq:
+            current_dist, current_node = heapq.heappop(pq)
+            if current_dist > dist[current_node]:
+                continue  # stale entry
+
+            # Process one valid item per iteration
+            for neighbor, attrs in graph.adj[current_node].items():
+                weight = attrs["weight"]
+                new_dist = current_dist + weight
+
+                if new_dist < dist[neighbor]:
+                    dist[neighbor] = new_dist
+                    prev[neighbor] = current_node
+                    heapq.heappush(pq, (new_dist, neighbor))
+
+            # Update stored state
+            state['pq'] = pq
+            state['dist'] = dist
+            state['prev'] = prev
+
+            vias = find_vias(graph, dist, prev, source)
+            print_vias(vias, source)
+
+            return False
+
+        # If all popped entries were stale, finalize:
+        vias = find_vias(graph, dist, prev, source)
+        print_vias(vias, source)
+        state.clear()
+        return True
+
 
 
 def dijkstra(source: str, graph: nx.Graph) -> list[tuple[float, str, str]]:
@@ -105,7 +176,7 @@ def find_vias(graph: nx.Graph, dvs: dict, prev: dict, source: str) -> list[tuple
             continue
         if node == source:
             via = "-"
-        elif prev[node] == None:
+        elif prev.get(node, None) == None:
             via = source
         else:
             via = prev[node]
@@ -114,7 +185,7 @@ def find_vias(graph: nx.Graph, dvs: dict, prev: dict, source: str) -> list[tuple
     return results
 
 
-def print_vias(vias: tuple[float, str, str], source: str) -> None:
+def print_vias(vias: list[tuple[float, str, str]], source: str) -> None:
     print(f"\nRouting Table for node {source} (Sorted by Cost):")
     for distance, node, via in vias:
         print(f"{node} <- {via} ({distance})")
@@ -186,7 +257,7 @@ class DistributredLinkStateRouting(RoutingAlgorithm):
 
         # Freeze graph state for convergence check
         pre_graph = deepcopy(graphs[source])
-
+        
         # Combine the graphs
         for node in graph.nodes:
             for neighbor in graphs[node].nodes:
@@ -205,6 +276,7 @@ class DistributredLinkStateRouting(RoutingAlgorithm):
             )
             return True
         return False
+     
 
 
 class DistanceVectorRouting(RoutingAlgorithm):
@@ -272,7 +344,7 @@ class DistanceVectorRouting(RoutingAlgorithm):
 
                 if min_node is not None:
                     prev[min_node] = node1
-                dvs[node1][node2] = min_cost
+                dvs[node1][node2] = min_cost # type: ignore
                 if dvs[node1][node2] == float("inf"):
                     dvs[node1].pop(node2)
 
