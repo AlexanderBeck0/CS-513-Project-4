@@ -1,4 +1,4 @@
-# Routing Algorithms
+# CS513 Final Report
 
 ## Names
 
@@ -14,7 +14,7 @@ Team Lord of the Pings consists of: Alexander Beck, Jack Rothenberg
 
 - Jack Rothenberg
   - Link-state routing
-  - Dijsktra
+  - Dijkstra
   - Graph manager
   - Network plotting
 
@@ -37,11 +37,11 @@ The kernel itself does not accept any command args, but is done by parsing stand
 
 When running the kernel using "help" or "help ls" will show information and usage about a command. To input a file of edges, run "file filename". You can exit the kernel by doing Ctrl + C or typing the "exit" command. Adding an edge is as simple as typing "A B 4", and removing it can be done through "A B -". Nodes are only single characters and costs must be positive integers.
 
-The first algorithm is the link-state routing algorithm, which utilizes Dijkstra's algorithm on a centralized system. The link-state routing algorithm is called by using the "ls" command with the given node as the root node to calculate from (ls A). The second is the distance-vector routing algorithm, which utilizes every node keeping its own table and sharing information with its neighbors in a decentralized fashion. The distance-vector routing algorithm is called using the "dv" command with the given node as the root node to calculate from (dv A). This algorithm allows for the "-i" argument, which indicates that the algorithm should run incrementally (dv A -i). The third is a combination of the two and combines the usage of the optimal Dijkstra's algorithm on a decentralized system by having each node build and share its own graph based on the information shared by its neighbors and runs Dijkstra's on that graph. We are calling it the distributed link-state routing algorith and it is called by using the "dls" command with the given node as the root node to calculate from. Similar to the "dv" command, this can also be ran with the "-i" parameter for iterative running.
+The first algorithm is the link-state routing algorithm, which utilizes Dijkstra's algorithm on a centralized system. The link-state routing algorithm is called by using the "ls" command with the given node as the root node to calculate from (ls A). The second is the distance-vector routing algorithm, which utilizes every node keeping its own table and sharing information with its neighbors in a decentralized fashion. The distance-vector routing algorithm is called using the "dv" command with the given node as the root node to calculate from (dv A). This algorithm allows for the "-i" argument, which indicates that the algorithm should run incrementally (dv A -i). The third is a combination of the two and combines the usage of the optimal Dijkstra's algorithm on a decentralized system by having each node build and share its own graph based on the information shared by its neighbors and runs Dijkstra's on that graph. We are calling it the distributed link-state routing algorithm and it is called by using the "dls" command with the given node as the root node to calculate from. Similar to the "dv" command, this can also be ran with the "-i" parameter for iterative running.
 
 In addition to the routing algorithms, we created several tools for analysis and visualization. For visualization, we created the "plot" and "tree" commands. The "plot" command plots the graph as constructed with the given nodes and costs. The "tree" command which plots a minimum spanning tree with the inputted node as the root node for the network graph (tree A). For analysis, we created the commands "centrality" and "stats". The "centrality" command calculates the betweenness of every node in the graph and prints the nodes with their betweenness, allowing us to see which nodes are most central to the network. The "stats" command prints the node with the maximum, minimum, and average shortest path lengths found in the graph.
 
-## What are the results you obtained? As appropriate, it is important you include sample output demonstrating functionality/results of your project
+## Results / Sample Runs With Outputs
 
 Our results are separated into different experiments, listed as follows:
 
@@ -88,7 +88,7 @@ tree A
 
 This code produces the following outputs (confirmation text and intermediary routing tables not shown for conciseness):
 
-Initial Graph Plot:
+
 ![Simple Run Initial Plot](../figures/Simple_Run_Plot.png)
 
 
@@ -116,10 +116,10 @@ J <- I (10)
 Link State Routing algorithm converged after 11 runs
 ```
 
-Initial Tree (Link State):
+
 ![Simple Run Initial Tree (Link State)](../figures/Simple_Run_Tree.png)
 
-Simple Run Plot Edges Removed:
+
 ![Simple Run Edges Removed](../figures/Simple_Run_Plot_2.png)
 
 Running Distance-Vector routing after removing edges:
@@ -142,14 +142,14 @@ F <- G (7)
 G <- H (7)
 D <- E (10)
 J <- I (10)
-The Distance Vector Routing Algorithm has converged! Any future use of the dv command with the same graph will not change the output.
+The Distance Vector Routing Algorithm has converged! 
+Any future use of the dv command with the same graph will not change the output.
 Distance Vector Routing algorithm converged after 6 runs
 ```
 
-Simple Run New Tree (Distance Vector):
 ![Simple Run Initial Tree (Distance Vector)](../figures/Simple_Run_Tree_2.png)
 
-Running the first set of these commands creates the graph. Running the "plot" command then displays the creates graph. Running "ls A" will then run the Link-State routing algorithm with node A as the root node. It will print to the console the resulting routing table. Running the "tree" command will plot the resulting spanning tree. The next set of commands remove several edges from the graph. Running the "plot" command now shows the modified plot. Running "dv A" then updates the routing table using the Distance-Vector routing algorithm, also printing the results. Running the "tree" command again shows a slighly different spanning tree, reflecting the new graph.
+Running the first set of these commands creates the graph. Running the "plot" command then displays the created graph. Running "ls A" will then run the Link-State routing algorithm with node A as the root node. It will print to the console the resulting routing table. Running the "tree" command will plot the resulting spanning tree. The next set of commands remove several edges from the graph. Running the "plot" command now shows the modified plot. Running "dv A" then updates the routing table using the Distance-Vector routing algorithm, also printing the results. Running the "tree" command again shows a slightly different spanning tree, reflecting the new graph.
 
 ### Changing Cost DV
 
@@ -191,7 +191,8 @@ D <- F (5)
 E <- C (6)
 F <- G (7)
 G <- H (7)
-The Distance Vector Routing Algorithm has converged! Any future use of the dv command with the same graph will not change the output.
+The Distance Vector Routing Algorithm has converged! 
+Any future use of the dv command with the same graph will not change the output.
 Distance Vector Routing algorithm converged after 5 runs
 ```
 
@@ -220,7 +221,8 @@ E <- C (6)
 F <- G (7)
 G <- H (7)
 J <- A (9)
-The Distance Vector Routing Algorithm has converged! Any future use of the dv command with the same graph will not change the output.
+The Distance Vector Routing Algorithm has converged! 
+Any future use of the dv command with the same graph will not change the output.
 Distance Vector Routing algorithm converged after 3 runs
 ```
 
@@ -249,7 +251,8 @@ D <- F (5)
 E <- C (6)
 F <- G (7)
 G <- H (7)
-The Distance Vector Routing Algorithm has converged! Any future use of the dv command with the same graph will not change the output.
+The Distance Vector Routing Algorithm has converged! 
+Any future use of the dv command with the same graph will not change the output.
 Distance Vector Routing algorithm converged after 5 runs
 ```
 
@@ -278,10 +281,11 @@ E <- C (6)
 F <- G (7)
 G <- H (7)
 J <- A (9)
-The Distance Vector Routing Algorithm has converged! Any future use of the dv command with the same graph will not change the output.
+The Distance Vector Routing Algorithm has converged! 
+Any future use of the dv command with the same graph will not change the output.
 ```
 
-Running the first command, "file figure1.in" generates the graph detailed in the "figure1.in" file. Running the command "dv A" then runs the Distance-Vector routing algorithm, printing and the resulting routing table with node "A" as the root node. This takes 5 iterations to converge. The next commands add node "J" and connect it to the graph by node "A" with edge cost 9. Running the "dv A" command again now shows that the cheapest route to "J" is of cost 9, which is to be expected. This takes 3 iterations to converge, which makes sense as the routing table is mostly settled and this causes a very minimal change. Then, the next commands add another route to node "J" through node "C" with cost 1. Running "dv A" again now shows the cost to "J" from "A" is 4. Notably, this takes several iterations, with the routing table shifting as this new information travels through the system. This takes 5 iterations. Lastly, the cost of the edge between nodes "C" and "J" is increased to 999. This ensures that this edge should no longer be used and the cost should go back up to 9, as the cheapest route to node "J" is again directly through node "A". As the Distance-Vector algorithm allows for "good news" to travel quickly and "bad news" to travel slowly, it would be expected that this change would take significantly longer than the previous modification. This is exactly what we see with this change taking 9 iterations to converge, almost twice the time.
+Running the first command, "file figure1.in" generates the graph detailed in the "figure1.in" file. Running the command "dv A" then runs the Distance-Vector routing algorithm, printing the resulting routing table with node "A" as the root node. This takes 5 iterations to converge. The next commands add node "J" and connect it to the graph by node "A" with edge cost 9. Running the "dv A" command again now shows that the cheapest route to "J" is of cost 9, which is to be expected. This takes 3 iterations to converge, which makes sense as the routing table is mostly settled and this causes a very minimal change. Then, the next commands add another route to node "J" through node "C" with cost 1. Running "dv A" again now shows the cost to "J" from "A" is 4. Notably, this takes several iterations, with the routing table shifting as this new information travels through the system. This takes 5 iterations. Lastly, the cost of the edge between nodes "C" and "J" is increased to 999. This ensures that this edge should no longer be used and the cost should go back up to 9, as the cheapest route to node "J" is again directly through node "A". As the Distance-Vector algorithm allows for "good news" to travel quickly and "bad news" to travel slowly, it would be expected that this change would take significantly longer than the previous modification. This is exactly what we see with this change taking 9 iterations to converge, almost twice the time.
 
 ### Time to Converge
 
@@ -313,7 +317,8 @@ D <- F (5)
 E <- C (6)
 F <- G (7)
 G <- H (7)
-The Distance Vector Routing Algorithm has converged! Any future use of the dv command with the same graph will not change the output.
+The Distance Vector Routing Algorithm has converged! 
+Any future use of the dv command with the same graph will not change the output.
 Distance Vector Routing algorithm converged after 5 runs
 ```
 
@@ -340,7 +345,8 @@ E <- A (6)
 F <- D (7)
 G <- H (7)
 Link State Routing algorithm converged after 9 runs
-The Distance Vector Routing Algorithm has converged! Any future use of the dv command with the same graph will not change the output.
+The Distance Vector Routing Algorithm has converged! 
+Any future use of the dv command with the same graph will not change the output.
 Distributed Link State Routing algorithm converged after 3 runs
 ```
 
@@ -410,7 +416,8 @@ A <- - (0)
 B <- C (1)
 C <- D (2)
 D <- C (3)
-The Distance Vector Routing Algorithm has converged! Any future use of the dv command with the same graph will not change the output.
+The Distance Vector Routing Algorithm has converged! 
+Any future use of the dv command with the same graph will not change the output.
 Distance Vector Routing algorithm converged after 4 runs
 Removed edge C-D
 
@@ -458,22 +465,21 @@ The collected statistics from each graph for correlation were:
 - edges: The number of edges in the graph
 - edge_ratio: The ratio of the number of edges to nodes
 - node_ratio: The ratio of the number of nodes to edges
-- edge_cost: The probability of that two nodes share an edge
+- edge_cost: The probability that two nodes share an edge
 - max_cost: The maximum allowed edge cost
 - max_b_cent: The maximum betweenness centrality of the nodes
 - mean_b_cent: The average betweenness centrality of the nodes
 
-The following is a heat map of all the correlated metrics:
 
-![figures/correlation_heatmap.png](../figures/correlation_heatmap.png)
+![Correlation Heatmap](../figures/correlation_heatmap.png)
 
-Regarding the link state algorithm, it is most strongly corelated with the number of edges and the edge ratio, but is also corelated with the number of nodes and the average shortest path. This is to be expected as all routing algorithms benefit from shorter paths. It is also negatively corelated to the node ratio, which is to be expected as a more sparse graph is quicker to process. Additionally, as the number of nodes and edges increases, it has more to search over, increasing the runtime. It is also strongly corelated to the runtime for the other algirthms, interestingly equally so.
+Regarding the link state algorithm, it is most strongly correlated with the number of edges and the edge ratio, but is also correlated with the number of nodes and the average shortest path. This is to be expected as all routing algorithms benefit from shorter paths. It is also negatively correlated to the node ratio, which is to be expected as a more sparse graph is quicker to process. Additionally, as the number of nodes and edges increases, it has more to search over, increasing the runtime. It is also strongly correlated to the runtime for the other algorithms, interestingly equally so.
 
-Regarding the distributed link state algorithm, it has approximately the same corelations as the link state algorithm. This is to be expected as it effectively is the link state algorithm but prefaced by a means of gaining the graph knowlege in a distributed fashion.
+Regarding the distributed link state algorithm, it has approximately the same correlations as the link state algorithm. This is to be expected as it effectively is the link state algorithm but prefaced by a means of gaining the graph knowledge in a distributed fashion.
 
-Regarding the distance vector algorithm, it has very similar corelations to the other two. Interestingly, it has stronger overall corelations to the collected statistics. This primarily includes the number of edges, edge ratio, number of nodes (which was almost doubly corelated), along with the average and max sp. This was very surprising, but we hypothesize this is due to the algorithm being more reliant on the structure of the graph itself as the knowlege is shared neighbor to neighbor.
+Regarding the distance vector algorithm, it has very similar correlations to the other two. Interestingly, it has stronger overall correlations to the collected statistics. This primarily includes the number of edges, edge ratio, number of nodes (which was almost doubly correlated), along with the average and max sp. This was very surprising, but we hypothesize this is due to the algorithm being more reliant on the structure of the graph itself as the knowledge is shared neighbor to neighbor.
 
-Additionally, the node ratio is the only captured metric that is strongly negatively corelated. It is corelated to all tested algorithms along with the edge probability, edge ratio, number of edges, and the average and max shortest paths. There are also some interesting connections between the shortest paths and the edges. It seems there is a very strong corelation between the max and average shortest paths with the number of edges and edge ratios. We would expect there would be a negative corelation here, as the having more edges would result in there being more potential shortcuts that can be taken, but that is not what is seen here, which is very interesting. Similarly, we would expect the number of edges and edge ratio to especially impact the distance vector algorithm with a negative corelation as the more edges you have, the faster knowlege can spread and the shorter the runtime should be. Potentially, the cause of this is updating the nodes' routing tables in an oscillatory fashion as they get data regarding each other from several different sources.
+Additionally, the node ratio is the only captured metric that is strongly negatively correlated. It is correlated to all tested algorithms along with the edge probability, edge ratio, number of edges, and the average and max shortest paths. There are also some interesting connections between the shortest paths and the edges. It seems there is a very strong correlation between the max and average shortest paths with the number of edges and edge ratios. We would expect there would be a negative correlation here, as having more edges would result in there being more potential shortcuts that can be taken, but that is not what is seen here, which is very interesting. Similarly, we would expect the number of edges and edge ratio to especially impact the distance vector algorithm with a negative correlation as the more edges you have, the faster knowledge can spread and the shorter the runtime should be. Potentially, the cause of this is updating the nodes' routing tables in an oscillatory fashion as they get data regarding each other from several different sources.
 
 ## What Went Well
 
@@ -481,7 +487,7 @@ Some aspects of the project that went particularly well were the simulated kerne
 
 ## What We Learned
 
-Throughout the development of this project, and running the various experiments, we gained hands-on knowlege expanding upon what we discussed in class. While implementing the distance-vector routing algorithm, it was fascinating to see the same count to infinity problem. As mentioned before, we origionally thought it was a mistake, but after analyzing the algorithm it makes total sense that the cost to reach an isolated node continues to climb due to the back and forth (in)corrections from each nodes' neighbors. Also with the distance-vector algorithm, it was extremely interesting to see the delayed response time when a cost is increased as opposed to decreased. This follows what we discussed in class with how good news spreads fast but bad news spreads slowly.
+Throughout the development of this project, and running the various experiments, we gained hands-on knowledge expanding upon what we discussed in class. While implementing the distance-vector routing algorithm, it was fascinating to see the same count to infinity problem. As mentioned before, we originally thought it was a mistake, but after analyzing the algorithm it makes total sense that the cost to reach an isolated node continues to climb due to the back and forth (in)corrections from each nodes' neighbors. Also with the distance-vector algorithm, it was extremely interesting to see the delayed response time when a cost is increased as opposed to decreased. This follows what we discussed in class about how good news spreads fast but bad news spreads slowly.
 
 Another thing we learned was that, despite having completely different algorithms, both the link-state and distance-vector routing algorithms converged to the same shortest paths. This behavior is actually quite simple, since both algorithms find the shortest path, the only difference being the knowledge available at the start.
 
