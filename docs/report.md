@@ -1,15 +1,4 @@
-# Introduction
-
-This handout provides more details on the report to go with the final course project you are
-currently working on. As indicated in the project handout: 
-
-“The final report should be a well-presented technical report discussing your project (in pdf format). If your project is primarily a programming effort, you should explain how the program works, give specific sample runs and analyze the results. The report should be 5-10 pages in length, although may be less if you do the standard project. If your project team is more than one person then the report should indicate what each person did on the project.”
-
-Again, the final project and report are due Friday, December 12, 2025.
-
-# Report Details
-
-In addition to the overview provided above, your report needs to address each of the following questions. You are encouraged to explicitly use this format in organizing your report.
+# Routing Algorithms
 
 ## What is your name(s)?
 
@@ -40,7 +29,7 @@ Team Lord of the Pings consists of: Alexander Beck, Jack Rothenberg
 
 We selected the standard network layer routing project.
 
-## Describe the work did you do on the project including any deviations from the description if you chose standard project.
+## Describe the work did you do on the project including any deviations from the description if you chose standard project
 
 For this project we created a kernel to simulate several different routing algorithms for the analysis of sparse networks. We created and analyzed 3 different routing algorithms along with several visualization and analysis tools.
 
@@ -52,7 +41,7 @@ The first algorithm is the link-state routing algorithm, which utilizes Dijkstra
 
 In addition to the routing algorithms, we created several tools for analysis and visualization. For visualization, we created the "plot" and "tree" commands. The "plot" command plots the graph as constructed with the given nodes and costs. The "tree" command which plots a minimum spanning tree with the inputted node as the root node for the network graph (tree A). For analysis, we created the commands "centrality" and "stats". The "centrality" command calculates the betweenness of every node in the graph and prints the nodes with their betweenness, allowing us to see which nodes are most central to the network. The "stats" command prints the node with the maximum, minimum, and average shortest path lengths found in the graph.
 
-## What are the results you obtained? As appropriate, it is important you include sample output demonstrating functionality/results of your project.
+## What are the results you obtained? As appropriate, it is important you include sample output demonstrating functionality/results of your project
 
 Our results are separated into different experiments, listed as follows:
 
@@ -129,9 +118,9 @@ dls A -r
 ls A -r
 ```
 
-The time to converge experiment was done by running the different running algorithms on the same graph, and comparing how many times it took each to finish. 
+The time to converge experiment was done by running the different running algorithms on the same graph, and comparing how many times it took each to finish.
 
-One interesting result is when running the different algorithms on a dense graph (specifically, every node connected to every other node). Distance Vector and Distributed link state finish in `2` runs, but link state takes `n + 1`. This is interesting because it is the opposite of a sparse graph, where it takes Distance Vector longer than Link State. 
+One interesting result is when running the different algorithms on a dense graph (specifically, every node connected to every other node). Distance Vector and Distributed link state finish in `2` runs, but link state takes `n + 1`. This is interesting because it is the opposite of a sparse graph, where it takes Distance Vector longer than Link State.
 
 ### Count to Infinity
 
@@ -149,7 +138,8 @@ dv A -i
 dv A -i
 dv A -i
 ```
-As an experiment to test the count-to-infinity problem with the distance vector routing algorithm, we designed a miniature experiment. This experiment follows the example shown in class for the count-to-infinity problem, with a straight line graph A-B-C-D of edge weights 1. After creating the graph, remove the C-D edge, and run the algorithm. The results show that A-D gets greater every iteration. 
+
+As an experiment to test the count-to-infinity problem with the distance vector routing algorithm, we designed a miniature experiment. This experiment follows the example shown in class for the count-to-infinity problem, with a straight line graph A-B-C-D of edge weights 1. After creating the graph, remove the C-D edge, and run the algorithm. The results show that A-D gets greater every iteration.
 
 ### Correlation Experiment
 
@@ -160,6 +150,7 @@ The number of nodes was specified to be between 3 and 26, the edge probability (
 For each of these 10000 graphs, several experiments were ran, generating various statistics. First, each of the graphs were saved as text and plots, then the Distance-Vector routing algorithm was ran, then the Distributed-Link-State routing algorithm, followed by the Link-State routing algorithm. Once the routing algorithms were ran, the betweenness centrality was found for all.
 
 The collected statistics from each graph for correlation were:
+
 - max_sp: The maximum shortest path length
 - min_sp: The minimum shortest path length
 - avg_sp: The average shortest path length
@@ -172,7 +163,7 @@ The collected statistics from each graph for correlation were:
 - max_b_cent: The maximum betweenness centrality of the nodes
 - mean_b_cent: The average betweenness centrality of the nodes
 
-The heat map can be found of all the correlated items [here](../figures/correlation_heatmap.png).
+The heat map can be found of all the correlated items in [figures/correlation_heatmap.png](../figures/correlation_heatmap.png).
 
 Regarding the link state algorithm, it is most strongly corelated with the number of edges and the edge ratio, but is also corelated with the number of nodes and the average shortest path. This is to be expected as all routing algorithms benefit from shorter paths. It is also negatively corelated to the node ratio, which is to be expected as a more sparse graph is quicker to process. Additionally, as the number of nodes and edges increases, it has more to search over, increasing the runtime. It is also strongly corelated to the runtime for the other algirthms, interestingly equally so.
 
