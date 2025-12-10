@@ -77,7 +77,6 @@ def changing_cost_dv():
     print_header("Chaning Cost DV", num_sep=6)
     parse, manager = parse_factory()
     file_cmd(manager, "figure1.in")
-    print_header("Adding A-J (cost 9)")
     parse("dv A")
 
     print_header("Adding A-J (cost 9)")
@@ -88,7 +87,7 @@ def changing_cost_dv():
     parse("C J 1")
     parse("dv A")
 
-    print_header("Changing C J 1 -> C J ")
+    print_header("Changing C J 1 -> C J 999")
     print("(Should make shortest path from A -> J be 9 instead of 4)")
     parse(
         "C J 999",
@@ -296,11 +295,14 @@ if __name__ == "__main__":
     # randomgraph = generate_random_graph(26, 0.075, 50)
     # randomgraph.save_to_file("random_graph.in")
     # randomgraph.save_plot("random_graph.png")
-    batch_gather_statistics(10000, False, False)
+    # batch_gather_statistics(10000, False, False)
     # randomgraph, _, _ = generate_random_graph(26, 1, 1)
     # parse = get_parse_wrapper(randomgraph)
     # parse("ls A -r")
     # parse("dv A -r")
     # parse("dls A -r")
     # Finished
-    # count_to_infinity()
+    count_to_infinity()
+    # changing_cost_dv()
+    # time_to_converge()
+    # simple_run()

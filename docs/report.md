@@ -1,6 +1,6 @@
 # Routing Algorithms
 
-## What is your name(s)?
+## Names
 
 Team Lord of the Pings consists of: Alexander Beck, Jack Rothenberg
 
@@ -25,11 +25,11 @@ Team Lord of the Pings consists of: Alexander Beck, Jack Rothenberg
   - Experiments
   - Analysis
 
-## What project did you select?
+## Selected Project
 
 We selected the standard network layer routing project.
 
-## Describe the work did you do on the project including any deviations from the description if you chose standard project
+## Work Completed / Deviations From Standard Project
 
 For this project we created a kernel to simulate several different routing algorithms for the analysis of sparse networks. We created and analyzed 3 different routing algorithms along with several visualization and analysis tools.
 
@@ -86,6 +86,69 @@ dv A
 tree A
 ```
 
+This code produces the following outputs (confirmation text and intermediary routing tables not shown for conciseness):
+
+Initial Graph Plot:
+![Simple Run Initial Plot](../figures/Simple_Run_Plot.png)
+
+
+Running Link-State routing from A:
+```
+Routing Table for node A (Sorted by Cost):
+A <- - (0)
+B <- A (2)
+D <- A (5)
+E <- A (6)
+
+...
+
+Routing Table for node A (Sorted by Cost):
+A <- - (0)
+B <- A (2)
+C <- B (3)
+H <- C (4)
+D <- A (5)
+E <- A (6)
+I <- H (6)
+F <- D (7)
+G <- H (7)
+J <- I (10)
+Link State Routing algorithm converged after 11 runs
+```
+
+Initial Tree (Link State):
+![Simple Run Initial Tree (Link State)](../figures/Simple_Run_Tree.png)
+
+Simple Run Plot Edges Removed:
+![Simple Run Edges Removed](../figures/Simple_Run_Plot_2.png)
+
+Running Distance-Vector routing after removing edges:
+```
+Routing Table for node A (Sorted by Cost):
+A <- - (0)
+B <- C (2)
+E <- C (6)
+
+...
+
+Routing Table for node A (Sorted by Cost):
+A <- - (0)
+B <- C (2)
+C <- H (3)
+H <- I (4)
+E <- C (6)
+I <- J (6)
+F <- G (7)
+G <- H (7)
+D <- E (10)
+J <- I (10)
+The Distance Vector Routing Algorithm has converged! Any future use of the dv command with the same graph will not change the output.
+Distance Vector Routing algorithm converged after 6 runs
+```
+
+Simple Run New Tree (Distance Vector):
+![Simple Run Initial Tree (Distance Vector)](../figures/Simple_Run_Tree_2.png)
+
 Running the first set of these commands creates the graph. Running the "plot" command then displays the creates graph. Running "ls A" will then run the Link-State routing algorithm with node A as the root node. It will print to the console the resulting routing table. Running the "tree" command will plot the resulting spanning tree. The next set of commands remove several edges from the graph. Running the "plot" command now shows the modified plot. Running "dv A" then updates the routing table using the Distance-Vector routing algorithm, also printing the results. Running the "tree" command again shows a slighly different spanning tree, reflecting the new graph.
 
 ### Changing Cost DV
@@ -107,6 +170,117 @@ C J 999
 dv A
 ```
 
+This code produces the following outputs (confirmation text and intermediary routing tables not shown for conciseness):
+
+Initial routing table from distance-vector:
+```
+Routing Table for node A (Sorted by Cost):
+A <- - (0)
+B <- C (2)
+D <- F (5)
+E <- C (6)
+
+...
+
+Routing Table for node A (Sorted by Cost):
+A <- - (0)
+B <- C (2)
+C <- H (3)
+H <- C (4)
+D <- F (5)
+E <- C (6)
+F <- G (7)
+G <- H (7)
+The Distance Vector Routing Algorithm has converged! Any future use of the dv command with the same graph will not change the output.
+Distance Vector Routing algorithm converged after 5 runs
+```
+
+Running distance vector again after adding edge A J 9:
+```
+Routing Table for node A (Sorted by Cost):
+A <- - (0)
+B <- C (2)
+C <- H (3)
+H <- C (4)
+D <- F (5)
+E <- C (6)
+F <- G (7)
+G <- H (7)
+J <- A (9)
+
+...
+
+Routing Table for node A (Sorted by Cost):
+A <- - (0)
+B <- C (2)
+C <- H (3)
+H <- C (4)
+D <- F (5)
+E <- C (6)
+F <- G (7)
+G <- H (7)
+J <- A (9)
+The Distance Vector Routing Algorithm has converged! Any future use of the dv command with the same graph will not change the output.
+Distance Vector Routing algorithm converged after 3 runs
+```
+
+Running distance vector again after Adding C J 1:
+```
+Routing Table for node A (Sorted by Cost):
+A <- - (0)
+B <- C (2)
+C <- J (3)
+H <- C (4)
+D <- F (5)
+E <- C (6)
+F <- G (7)
+G <- H (7)
+J <- C (9)
+
+...
+
+Routing Table for node A (Sorted by Cost):
+A <- - (0)
+B <- C (2)
+C <- J (3)
+H <- C (4)
+J <- C (4)
+D <- F (5)
+E <- C (6)
+F <- G (7)
+G <- H (7)
+The Distance Vector Routing Algorithm has converged! Any future use of the dv command with the same graph will not change the output.
+Distance Vector Routing algorithm converged after 5 runs
+```
+
+After changing cost C J to 999:
+```
+Routing Table for node A (Sorted by Cost):
+A <- - (0)
+B <- C (2)
+C <- H (3)
+H <- C (4)
+J <- A (4)
+D <- F (5)
+E <- C (6)
+F <- G (7)
+G <- H (7)
+
+...
+
+Routing Table for node A (Sorted by Cost):
+A <- - (0)
+B <- C (2)
+C <- H (3)
+H <- C (4)
+D <- F (5)
+E <- C (6)
+F <- G (7)
+G <- H (7)
+J <- A (9)
+The Distance Vector Routing Algorithm has converged! Any future use of the dv command with the same graph will not change the output.
+```
+
 Running the first command, "file figure1.in" generates the graph detailed in the "figure1.in" file. Running the command "dv A" then runs the Distance-Vector routing algorithm, printing and the resulting routing table with node "A" as the root node. This takes 5 iterations to converge. The next commands add node "J" and connect it to the graph by node "A" with edge cost 9. Running the "dv A" command again now shows that the cheapest route to "J" is of cost 9, which is to be expected. This takes 3 iterations to converge, which makes sense as the routing table is mostly settled and this causes a very minimal change. Then, the next commands add another route to node "J" through node "C" with cost 1. Running "dv A" again now shows the cost to "J" from "A" is 4. Notably, this takes several iterations, with the routing table shifting as this new information travels through the system. This takes 5 iterations. Lastly, the cost of the edge between nodes "C" and "J" is increased to 999. This ensures that this edge should no longer be used and the cost should go back up to 9, as the cheapest route to node "J" is again directly through node "A". As the Distance-Vector algorithm allows for "good news" to travel quickly and "bad news" to travel slowly, it would be expected that this change would take significantly longer than the previous modification. This is exactly what we see with this change taking 9 iterations to converge, almost twice the time.
 
 ### Time to Converge
@@ -116,6 +290,81 @@ file figure1.in
 dv A
 dls A -r
 ls A -r
+```
+
+This code produces the following outputs (confirmation text and intermediary routing tables not shown for conciseness):
+
+Initial routing table from distance vector:
+```
+Routing Table for node A (Sorted by Cost):
+A <- - (0)
+B <- C (2)
+D <- F (5)
+E <- C (6)
+
+...
+
+Routing Table for node A (Sorted by Cost):
+A <- - (0)
+B <- C (2)
+C <- H (3)
+H <- C (4)
+D <- F (5)
+E <- C (6)
+F <- G (7)
+G <- H (7)
+The Distance Vector Routing Algorithm has converged! Any future use of the dv command with the same graph will not change the output.
+Distance Vector Routing algorithm converged after 5 runs
+```
+
+Running distributed link state routing after resetting:
+
+```
+Reset dls graphs.
+
+Routing Table for node A (Sorted by Cost):
+A <- - (0)
+B <- A (2)
+D <- A (5)
+E <- A (6)
+
+...
+
+Routing Table for node A (Sorted by Cost):
+A <- - (0)
+B <- A (2)
+C <- B (3)
+H <- C (4)
+D <- A (5)
+E <- A (6)
+F <- D (7)
+G <- H (7)
+Link State Routing algorithm converged after 9 runs
+The Distance Vector Routing Algorithm has converged! Any future use of the dv command with the same graph will not change the output.
+Distributed Link State Routing algorithm converged after 3 runs
+```
+
+Running link state routing after resetting:
+
+```
+Routing Table for node A (Sorted by Cost):
+A <- - (0)
+B <- A (2)
+D <- A (5)
+E <- A (6)
+
+...
+
+Routing Table for node A (Sorted by Cost):
+A <- - (0)
+B <- A (2)
+C <- B (3)
+H <- C (4)
+D <- A (5)
+E <- A (6)
+F <- D (7)
+G <- H (7)
+Link State Routing algorithm converged after 9 runs
 ```
 
 The time to converge experiment was done by running the different running algorithms on the same graph, and comparing how many times it took each to finish.
@@ -137,6 +386,57 @@ dv A -i
 dv A -i
 dv A -i
 dv A -i
+```
+
+Entire code output (as this is a smaller-scale experiment):
+```
+Routing Table for node A (Sorted by Cost):
+A <- - (0)
+B <- C (1)
+
+Routing Table for node A (Sorted by Cost):
+A <- - (0)
+B <- C (1)
+C <- D (2)
+
+Routing Table for node A (Sorted by Cost):
+A <- - (0)
+B <- C (1)
+C <- D (2)
+D <- C (3)
+
+Routing Table for node A (Sorted by Cost):
+A <- - (0)
+B <- C (1)
+C <- D (2)
+D <- C (3)
+The Distance Vector Routing Algorithm has converged! Any future use of the dv command with the same graph will not change the output.
+Distance Vector Routing algorithm converged after 4 runs
+Removed edge C-D
+
+Routing Table for node A (Sorted by Cost):
+A <- - (0)
+B <- C (1)
+C <- B (2)
+D <- A (3)
+
+Routing Table for node A (Sorted by Cost):
+A <- - (0)
+B <- C (1)
+C <- B (2)
+D <- A (3)
+
+Routing Table for node A (Sorted by Cost):
+A <- - (0)
+B <- C (1)
+C <- B (2)
+D <- A (5)
+
+Routing Table for node A (Sorted by Cost):
+A <- - (0)
+B <- C (1)
+C <- B (2)
+D <- A (7)
 ```
 
 As an experiment to test the count-to-infinity problem with the distance vector routing algorithm, we designed a miniature experiment. This experiment follows the example shown in class for the count-to-infinity problem, with a straight line graph A-B-C-D of edge weights 1. After creating the graph, remove the C-D edge, and run the algorithm. The results show that A-D gets greater every iteration.
@@ -163,7 +463,9 @@ The collected statistics from each graph for correlation were:
 - max_b_cent: The maximum betweenness centrality of the nodes
 - mean_b_cent: The average betweenness centrality of the nodes
 
-The heat map can be found of all the correlated items in [figures/correlation_heatmap.png](../figures/correlation_heatmap.png).
+The following is a heat map of all the correlated metrics:
+
+![figures/correlation_heatmap.png](../figures/correlation_heatmap.png)
 
 Regarding the link state algorithm, it is most strongly corelated with the number of edges and the edge ratio, but is also corelated with the number of nodes and the average shortest path. This is to be expected as all routing algorithms benefit from shorter paths. It is also negatively corelated to the node ratio, which is to be expected as a more sparse graph is quicker to process. Additionally, as the number of nodes and edges increases, it has more to search over, increasing the runtime. It is also strongly corelated to the runtime for the other algirthms, interestingly equally so.
 
@@ -173,11 +475,11 @@ Regarding the distance vector algorithm, it has very similar corelations to the 
 
 Additionally, the node ratio is the only captured metric that is strongly negatively corelated. It is corelated to all tested algorithms along with the edge probability, edge ratio, number of edges, and the average and max shortest paths. There are also some interesting connections between the shortest paths and the edges. It seems there is a very strong corelation between the max and average shortest paths with the number of edges and edge ratios. We would expect there would be a negative corelation here, as the having more edges would result in there being more potential shortcuts that can be taken, but that is not what is seen here, which is very interesting. Similarly, we would expect the number of edges and edge ratio to especially impact the distance vector algorithm with a negative corelation as the more edges you have, the faster knowlege can spread and the shorter the runtime should be. Potentially, the cause of this is updating the nodes' routing tables in an oscillatory fashion as they get data regarding each other from several different sources.
 
-## What went well on the project?
+## What Went Well
 
 Some aspects of the project that went particularly well were the simulated kernel, visualizations, and experiment runner. The simulated kernel was set up such that it was very easy for us to add various commands as we were experimenting making the integration simple. The visualizations show the graph with the nodes in labeled circles and the edge weights all labeled nicely. It was fairly simple to implement, but made it so much easier to visualize and debug the code regarding the graph inputs. Seeing the physical graph made it easier to double check the routing algorithms. The tree visualization is very clean since it shows the plot in a similar way to the full network graph but spread out, and it also helped validate the results from the routing algorithms. The experiment runner allowed us to easily run various tests with different graphs in different scenarios without having to manually type it all out in our console one by one, searching through all of the prints and similar.
 
-## What did you learn?
+## What We Learned
 
 Throughout the development of this project, and running the various experiments, we gained hands-on knowlege expanding upon what we discussed in class. While implementing the distance-vector routing algorithm, it was fascinating to see the same count to infinity problem. As mentioned before, we origionally thought it was a mistake, but after analyzing the algorithm it makes total sense that the cost to reach an isolated node continues to climb due to the back and forth (in)corrections from each nodes' neighbors. Also with the distance-vector algorithm, it was extremely interesting to see the delayed response time when a cost is increased as opposed to decreased. This follows what we discussed in class with how good news spreads fast but bad news spreads slowly.
 
@@ -185,11 +487,11 @@ Another thing we learned was that, despite having completely different algorithm
 
 Finally, we learned that distributed systems are much harder to work with than centralized ones. Neither of us had much experience with distributed systems, and working with the behavior mentioned above was hard to debug, especially when count-to-infinity exists (and we don't know that it is normal for distance-vector routing!).
 
-## What was hard?
+## What Was Hard
 
 When writing the distance-vector routing algorithm, we had the counting-to-infinity issue. This caused us to think that our implementation was incorrect, and so we spent a lot of time debugging and came to the conclusion that we needed to start over. Instead of using dictionaries, we tried having each node store a graph of how it sees the network. It was quite an elegant solution, but we later realized that it was no longer the distance-vector routing algorithm, but rather a distributed link-state routing algorithm. We also learned that our initial implementation was correct after counting-to-infinity was discussed in class.
 
-## What, if anything, did you do beyond the standard project description (if you based your project on it)?
+## What Went Beyond the Standard Project Description
 
 We added a command parser that supports arguments and flags. It also is built using python decorators, which means that you simply put "@add_command" on top of a function definition and it will add it to the list of commands. It even automatically adds it to the "help" command with its description, usage, and any arguments.
 
@@ -197,6 +499,6 @@ We also added a "centrality" and "stats" command. They were added because we tho
 
 The Distributed Link-State routing algorithm was added after a failed attempt at the distance vector algorithm. Instead of replacing it with the correct "dv" command, we simply made a "dls" command.
 
-## What, if anything, did you not complete that was in the basic project description or your initial design?
+## What Was Not Completed
 
 We completed all aspects of the basic project description, including optional suggestions, and from our initial design, including all stretch goals.

@@ -187,8 +187,8 @@ def find_vias(graph: nx.Graph, dvs: dict, prev: dict, source: str) -> list[tuple
 
 def print_vias(vias: list[tuple[float, str, str]], source: str) -> None:
     print(f"\nRouting Table for node {source} (Sorted by Cost):")
-    # for distance, node, via in vias:
-    #     print(f"{node} <- {via} ({distance})")
+    for distance, node, via in vias:
+        print(f"{node} <- {via} ({distance})")
 
 
 def average_shortest_path(graph: nx.Graph) -> tuple[str, str, float, dict[str, float]]:
